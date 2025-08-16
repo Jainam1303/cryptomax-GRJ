@@ -2,23 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { 
   DollarSign, 
   TrendingUp, 
-  Clock, 
-  User, 
   Edit, 
   CheckCircle, 
-  XCircle, 
-  Pause,
-  Play,
-  Trash2,
-  Filter,
-  Search,
-  Download,
   RefreshCw
 } from 'lucide-react';
 import { Badge } from '../ui/Badge';
 import Button from '../ui/button';
 import { Input } from '../ui/Input';
-import Modal from '../ui/Modal';
 import Card from '../ui/card';
 import LoadingSpinner from '../common/LoadingSpinner';
 import api from '../../services/api';
