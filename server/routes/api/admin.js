@@ -5,10 +5,18 @@ const admin = require('../../middleware/admin');
 const adminController = require('../../controllers/adminController');
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, '../../uploads'));
+    const uploadDir = path.join(__dirname, '../../uploads');
+    try {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    } catch (e) {
+      console.error('Failed to create upload directory:', uploadDir, e);
+      return cb(e, uploadDir);
+    }
+    cb(null, uploadDir);
   },
   filename: function (req, file, cb) {
     const ext = path.extname(file.originalname);

@@ -594,9 +594,13 @@ exports.uploadDepositWalletQr = async (req, res) => {
     if (!req.file) {
       return res.status(400).json({ msg: 'No file uploaded' });
     }
-    // Construct the URL to access the uploaded file
-    const qrImageUrl = `/uploads/${req.file.filename}`;
-    res.json({ qrImageUrl });
+    // Construct absolute URL to access the uploaded file (works across domains)
+    // Respect x-forwarded-proto for proxies like Render
+    const proto = (req.headers['x-forwarded-proto'] || req.protocol || 'http').toString();
+    const host = req.get('host');
+    const relativePath = `/uploads/${req.file.filename}`;
+    const absoluteUrl = `${proto}://${host}${relativePath}`;
+    res.json({ qrImageUrl: absoluteUrl, relativePath });
   } catch (err) {
     console.error('Upload deposit wallet QR error:', err.message);
     res.status(500).json({ msg: 'Server error' });
