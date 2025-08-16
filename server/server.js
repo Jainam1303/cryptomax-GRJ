@@ -36,6 +36,7 @@ app.use(cors(corsOptions));
 // Ensure uploads directory exists (for QR uploads) via centralized resolver
 const { getUploadsDir } = require('./config/uploads');
 const uploadsDir = getUploadsDir();
+console.log('📂 Uploads directory resolved to:', uploadsDir);
 
 // Routes
 app.use('/', routes);
