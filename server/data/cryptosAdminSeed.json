@@ -1,0 +1,112 @@
+[
+  {
+    "name": "Bitcoin",
+    "symbol": "BTC",
+    "image": "https://assets.coingecko.com/coins/images/1/large/bitcoin.png",
+    "currentPrice": 40000,
+    "minPrice": 35000,
+    "maxPrice": 45000,
+    "minChangePct": -2,
+    "maxChangePct": 2,
+    "adminFluctuationEnabled": true
+  },
+  {
+    "name": "Ethereum",
+    "symbol": "ETH",
+    "image": "https://assets.coingecko.com/coins/images/279/large/ethereum.png",
+    "currentPrice": 2500,
+    "minPrice": 2000,
+    "maxPrice": 3000,
+    "minChangePct": -3,
+    "maxChangePct": 3,
+    "adminFluctuationEnabled": true
+  },
+  {
+    "name": "Binance Coin",
+    "symbol": "BNB",
+    "image": "https://assets.coingecko.com/coins/images/825/large/bnb-icon2_2x.png",
+    "currentPrice": 350,
+    "minPrice": 300,
+    "maxPrice": 400,
+    "minChangePct": -2,
+    "maxChangePct": 2,
+    "adminFluctuationEnabled": true
+  },
+  {
+    "name": "Solana",
+    "symbol": "SOL",
+    "image": "https://assets.coingecko.com/coins/images/4128/large/solana.png",
+    "currentPrice": 100,
+    "minPrice": 80,
+    "maxPrice": 120,
+    "minChangePct": -4,
+    "maxChangePct": 4,
+    "adminFluctuationEnabled": true
+  },
+  {
+    "name": "Cardano",
+    "symbol": "ADA",
+    "image": "https://assets.coingecko.com/coins/images/975/large/cardano.png",
+    "currentPrice": 0.5,
+    "minPrice": 0.4,
+    "maxPrice": 0.6,
+    "minChangePct": -5,
+    "maxChangePct": 5,
+    "adminFluctuationEnabled": true
+  },
+  {
+    "name": "XRP",
+    "symbol": "XRP",
+    "image": "https://assets.coingecko.com/coins/images/44/large/xrp-symbol-white-128.png",
+    "currentPrice": 0.7,
+    "minPrice": 0.5,
+    "maxPrice": 0.9,
+    "minChangePct": -3,
+    "maxChangePct": 3,
+    "adminFluctuationEnabled": true
+  },
+  {
+    "name": "Dogecoin",
+    "symbol": "DOGE",
+    "image": "https://assets.coingecko.com/coins/images/5/large/dogecoin.png",
+    "currentPrice": 0.08,
+    "minPrice": 0.06,
+    "maxPrice": 0.1,
+    "minChangePct": -6,
+    "maxChangePct": 6,
+    "adminFluctuationEnabled": true
+  },
+  {
+    "name": "Polkadot",
+    "symbol": "DOT",
+    "image": "https://assets.coingecko.com/coins/images/12171/large/polkadot.png",
+    "currentPrice": 7,
+    "minPrice": 5,
+    "maxPrice": 9,
+    "minChangePct": -4,
+    "maxChangePct": 4,
+    "adminFluctuationEnabled": true
+  },
+  {
+    "name": "Polygon",
+    "symbol": "MATIC",
+    "image": "https://assets.coingecko.com/coins/images/4713/large/matic-token-icon.png",
+    "currentPrice": 1.2,
+    "minPrice": 1.0,
+    "maxPrice": 1.4,
+    "minChangePct": -3,
+    "maxChangePct": 3,
+    "adminFluctuationEnabled": true
+  },
+  {
+    "name": "Litecoin",
+    "symbol": "LTC",
+    "image": "https://assets.coingecko.com/coins/images/2/large/litecoin.png",
+    "currentPrice": 150,
+    "minPrice": 120,
+    "maxPrice": 180,
+    "minChangePct": -2,
+    "maxChangePct": 2,
+    "adminFluctuationEnabled": true
+  }
+] 

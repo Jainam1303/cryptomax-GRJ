@@ -1,0 +1,97 @@
+[
+  {
+    "_id": "mock_investment_1",
+    "userId": "shared",
+    "crypto": {
+      "_id": "bitcoin",
+      "name": "Bitcoin",
+      "symbol": "BTC",
+      "currentPrice": 43250.89,
+      "image": "https://assets.coingecko.com/coins/images/1/large/bitcoin.png"
+    },
+    "amount": 1000,
+    "quantity": 0.023127,
+    "buyPrice": 43250.89,
+    "currentValue": 1000,
+    "profitLoss": 0,
+    "profitLossPercentage": 0,
+    "status": "active",
+    "createdAt": "2024-12-01T10:30:00.000Z"
+  },
+  {
+    "_id": "mock_investment_2",
+    "userId": "shared",
+    "crypto": {
+      "_id": "ethereum",
+      "name": "Ethereum",
+      "symbol": "ETH",
+      "currentPrice": 2645.72,
+      "image": "https://assets.coingecko.com/coins/images/279/large/ethereum.png"
+    },
+    "amount": 500,
+    "quantity": 0.189,
+    "buyPrice": 2645.72,
+    "currentValue": 500,
+    "profitLoss": 0,
+    "profitLossPercentage": 0,
+    "status": "active",
+    "createdAt": "2024-12-01T14:15:00.000Z"
+  },
+  {
+    "_id": "mock_investment_3",
+    "userId": "shared",
+    "crypto": {
+      "_id": "binancecoin",
+      "name": "Binance Coin",
+      "symbol": "BNB",
+      "currentPrice": 318.45,
+      "image": "https://assets.coingecko.com/coins/images/825/large/bnb-icon2_2x.png"
+    },
+    "amount": 750,
+    "quantity": 2.356,
+    "buyPrice": 318.45,
+    "currentValue": 750,
+    "profitLoss": 0,
+    "profitLossPercentage": 0,
+    "status": "active",
+    "createdAt": "2024-12-02T09:20:00.000Z"
+  },
+  {
+    "_id": "mock_investment_4",
+    "userId": "shared",
+    "crypto": {
+      "_id": "cardano",
+      "name": "Cardano",
+      "symbol": "ADA",
+      "currentPrice": 0.495,
+      "image": "https://assets.coingecko.com/coins/images/975/large/cardano.png"
+    },
+    "amount": 200,
+    "quantity": 404.04,
+    "buyPrice": 0.495,
+    "currentValue": 200,
+    "profitLoss": 0,
+    "profitLossPercentage": 0,
+    "status": "active",
+    "createdAt": "2024-12-02T16:45:00.000Z"
+  },
+  {
+    "_id": "mock_investment_5",
+    "userId": "shared",
+    "crypto": {
+      "_id": "solana",
+      "name": "Solana",
+      "symbol": "SOL",
+      "currentPrice": 98.73,
+      "image": "https://assets.coingecko.com/coins/images/4128/large/solana.png"
+    },
+    "amount": 300,
+    "quantity": 3.038,
+    "buyPrice": 98.73,
+    "currentValue": 300,
+    "profitLoss": 0,
+    "profitLossPercentage": 0,
+    "status": "active",
+    "createdAt": "2024-12-03T11:30:00.000Z"
+  }
+]

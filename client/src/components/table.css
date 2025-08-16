@@ -1,0 +1,9 @@
+/* Scoped legacy table styles to avoid conflict with Tailwind tables */
+.legacy-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.legacy-table th, .legacy-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+}

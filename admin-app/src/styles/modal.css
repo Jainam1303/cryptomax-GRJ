@@ -1,0 +1,6 @@
+.modal {
+  background-color: var(--color-surface);
+  padding: 2rem;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-lg);
+} 
