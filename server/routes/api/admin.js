@@ -4,27 +4,8 @@ const auth = require('../../middleware/auth');
 const admin = require('../../middleware/admin');
 const adminController = require('../../controllers/adminController');
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
-const { getUploadsDir } = require('../../config/uploads');
-
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const uploadDir = getUploadsDir();
-    try {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    } catch (e) {
-      console.error('Failed to create upload directory:', uploadDir, e);
-      return cb(e, uploadDir);
-    }
-    cb(null, uploadDir);
-  },
-  filename: function (req, file, cb) {
-    const ext = path.extname(file.originalname);
-    const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1E9) + ext;
-    cb(null, uniqueName);
-  }
-});
+// Use memory storage; we'll save buffer to MongoDB
+const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 // All routes in this file require both auth and admin middleware

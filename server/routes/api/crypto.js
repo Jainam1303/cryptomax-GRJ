@@ -27,4 +27,7 @@ router.get('/:id/price-history', auth, cryptoController.getPriceHistory);
 // Public: Get deposit wallet info
 router.get('/deposit-wallets/:coin', adminController.getDepositWallet);
 
+// Public: Stream deposit wallet QR image from MongoDB
+router.get('/deposit-wallets/:coin/qr', adminController.streamDepositWalletQr);
+
 module.exports = router;

@@ -557,11 +557,19 @@ exports.processDepositRequest = async (req, res) => {
 exports.getDepositWallet = async (req, res) => {
   try {
     const { coin } = req.params;
-    const wallet = await DepositWallet.findOne({ coin });
+    const wallet = await DepositWallet.findOne({ coin }).lean();
     if (!wallet) {
       return res.status(404).json({ msg: 'Deposit wallet not found' });
     }
-    res.json(wallet);
+    // Prefer API route to stream QR if stored in DB
+    const qrUrl = wallet.qrImage && wallet.qrImage.data
+      ? `/api/crypto/deposit-wallets/${coin}/qr`
+      : (wallet.qrImageUrl || '');
+    return res.json({
+      coin: wallet.coin,
+      address: wallet.address,
+      qrImageUrl: qrUrl,
+    });
   } catch (err) {
     console.error('Get deposit wallet error:', err.message);
     res.status(500).json({ msg: 'Server error' });
@@ -575,34 +583,61 @@ exports.updateDepositWallet = async (req, res) => {
     const { address, qrImageUrl } = req.body;
     let wallet = await DepositWallet.findOne({ coin });
     if (!wallet) {
-      wallet = new DepositWallet({ coin, address, qrImageUrl });
+      wallet = new DepositWallet({ coin, address });
     } else {
-      wallet.address = address;
+      if (address) wallet.address = address;
+    }
+    // Allow setting a URL fallback (e.g., CDN), optional
+    if (qrImageUrl !== undefined) {
       wallet.qrImageUrl = qrImageUrl;
     }
     await wallet.save();
-    res.json(wallet);
+    // Return minimal info
+    return res.json({ coin: wallet.coin, address: wallet.address, qrImageUrl: wallet.qrImage && wallet.qrImage.data ? `/api/crypto/deposit-wallets/${coin}/qr` : (wallet.qrImageUrl || '') });
   } catch (err) {
     console.error('Update deposit wallet error:', err.message);
     res.status(500).json({ msg: 'Server error' });
   }
 };
 
-// Upload QR code image for deposit wallet
+// Upload QR code image for deposit wallet (store in MongoDB)
 exports.uploadDepositWalletQr = async (req, res) => {
   try {
+    const { coin } = req.params;
     if (!req.file) {
       return res.status(400).json({ msg: 'No file uploaded' });
     }
-    // Construct absolute URL to access the uploaded file (works across domains)
-    // Respect x-forwarded-proto for proxies like Render
-    const proto = (req.headers['x-forwarded-proto'] || req.protocol || 'http').toString();
-    const host = req.get('host');
-    const relativePath = `/uploads/${req.file.filename}`;
-    const absoluteUrl = `${proto}://${host}${relativePath}`;
-    res.json({ qrImageUrl: absoluteUrl, relativePath });
+    let wallet = await DepositWallet.findOne({ coin });
+    if (!wallet) {
+      // Create a placeholder wallet; address should be set via updateDepositWallet later
+      wallet = new DepositWallet({ coin, address: '' });
+    }
+    wallet.qrImage = {
+      data: req.file.buffer,
+      contentType: req.file.mimetype || 'image/png'
+    };
+    // Also set a stable API URL
+    wallet.qrImageUrl = `/api/crypto/deposit-wallets/${coin}/qr`;
+    await wallet.save();
+    return res.json({ qrImageUrl: wallet.qrImageUrl });
   } catch (err) {
     console.error('Upload deposit wallet QR error:', err.message);
+    res.status(500).json({ msg: 'Server error' });
+  }
+};
+
+// Public: Stream QR image from MongoDB for a coin
+exports.streamDepositWalletQr = async (req, res) => {
+  try {
+    const { coin } = req.params;
+    const wallet = await DepositWallet.findOne({ coin });
+    if (!wallet || !wallet.qrImage || !wallet.qrImage.data) {
+      return res.status(404).json({ msg: 'QR image not found' });
+    }
+    res.set('Content-Type', wallet.qrImage.contentType || 'image/png');
+    return res.send(wallet.qrImage.data);
+  } catch (err) {
+    console.error('Stream deposit wallet QR error:', err.message);
     res.status(500).json({ msg: 'Server error' });
   }
 };
