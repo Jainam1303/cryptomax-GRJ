@@ -173,7 +173,7 @@ const DepositForm: React.FC = () => {
                   <Button size="sm" variant="outline" className="ml-2" type="button" onClick={handleCopy}>Copy</Button>
                 </div>
                 {walletInfo.qrImageUrl && (
-                  <img src={`http://localhost:5000${ensureJpgExtension(walletInfo.qrImageUrl)}`} alt="USDT QR Code" className="w-40 h-40 object-contain border rounded mb-2" />
+                  <img src={ensureJpgExtension(walletInfo.qrImageUrl)} alt="USDT QR Code" className="w-40 h-40 object-contain border rounded mb-2" />
                 )}
                 <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">Do not send any other coin. Deposits are credited after network confirmation and admin approval.</div>
               </div>
