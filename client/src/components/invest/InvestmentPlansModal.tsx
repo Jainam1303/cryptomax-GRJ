@@ -53,7 +53,7 @@ const InvestmentPlansModal: React.FC<InvestmentPlansModalProps> = ({
     const fetchPlans = async () => {
       try {
         setPlansLoading(true);
-        const response = await api.get(`/api/investment-plans?cryptoId=${crypto._id}`);
+        const response = await api.get(`/api/investment-plans?cryptoId=${crypto._id}&symbol=${crypto.symbol}`);
         setPlans(response.data);
       } catch (error) {
         console.error('Error fetching investment plans:', error);

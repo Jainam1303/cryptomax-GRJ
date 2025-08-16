@@ -6,18 +6,29 @@ const Crypto = require('../models/Crypto');
 // @access  Public
 exports.getInvestmentPlans = async (req, res) => {
   try {
-    const { cryptoId } = req.query;
+    const { cryptoId, symbol } = req.query;
     let query = { isActive: true };
-    
+
+    // If a cryptoId is provided, try that first
     if (cryptoId) {
       query.crypto = cryptoId;
     }
-    
-    const plans = await InvestmentPlan.find(query)
+
+    let plans = await InvestmentPlan.find(query)
       .populate('crypto', 'name symbol currentPrice')
       .sort({ minAmount: 1 });
-    
-    res.json(plans);
+
+    // Fallback: if no plans found and a symbol is provided, try resolving symbol to a Crypto _id
+    if ((!plans || plans.length === 0) && symbol) {
+      const cryptoDoc = await Crypto.findOne({ symbol: symbol.toUpperCase() }).select('_id');
+      if (cryptoDoc) {
+        plans = await InvestmentPlan.find({ isActive: true, crypto: cryptoDoc._id })
+          .populate('crypto', 'name symbol currentPrice')
+          .sort({ minAmount: 1 });
+      }
+    }
+
+    res.json(plans || []);
   } catch (err) {
     console.error('Get investment plans error:', err.message);
     res.status(500).json({ msg: 'Server error' });
