@@ -12,7 +12,7 @@ const { startCryptoTicker } = require('./services/cryptoTicker');
 const app = express();
 
 // Connect to MongoDB
-connectDB(); // 👈 uses process.env.MONGO_URI
+connectDB(); // uses process.env.MONGO_URI
 
 // Middleware
 app.use(express.json({ extended: false }));
@@ -23,8 +23,12 @@ const allowedOrigins = (process.env.ALLOW_ORIGINS || 'http://localhost:8080,http
   .split(',')
   .map(o => o.trim())
   .filter(Boolean);
+const isWildcard = allowedOrigins.length === 1 && allowedOrigins[0] === '*';
+// If wildcard, echo the request origin so credentials work ("*" with credentials is invalid in browsers)
 const corsOptions = {
-  origin: allowedOrigins,
+  origin: isWildcard
+    ? function (origin, callback) { callback(null, true); }
+    : allowedOrigins,
   credentials: true
 };
 app.use(cors(corsOptions));
@@ -48,7 +52,7 @@ const server = http.createServer(app);
 const { Server } = require('socket.io');
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigins,
+    origin: isWildcard ? '*' : allowedOrigins,
     methods: ['GET', 'POST']
   }
 });
