@@ -20,6 +20,7 @@ const DepositForm: React.FC = () => {
   const [walletInfo, setWalletInfo] = useState<{ address: string; qrImageUrl: string } | null>(null);
   const [walletInfoLoading, setWalletInfoLoading] = useState(false);
   const [walletInfoError, setWalletInfoError] = useState<string | null>(null);
+  const [qrImgError, setQrImgError] = useState(false);
   const [txid, setTxid] = useState('');
   const [step, setStep] = useState<1 | 2>(1);
 
@@ -165,8 +166,27 @@ const DepositForm: React.FC = () => {
                   <span className="font-mono text-base bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded select-all">{walletInfo.address}</span>
                   <Button size="sm" variant="outline" className="ml-2" type="button" onClick={handleCopy}>Copy</Button>
                 </div>
-                {walletInfo.qrImageUrl && (
-                  <img src={walletInfo.qrImageUrl} alt="USDT QR Code" className="w-40 h-40 object-contain border rounded mb-2" />
+                {walletInfo.qrImageUrl && !qrImgError && (
+                  <img
+                    src={walletInfo.qrImageUrl}
+                    alt="USDT QR Code"
+                    className="w-40 h-40 object-contain border rounded mb-2"
+                    crossOrigin="anonymous"
+                    onError={() => {
+                      console.warn('QR image failed to load:', walletInfo.qrImageUrl);
+                      setQrImgError(true);
+                    }}
+                  />
+                )}
+                {walletInfo.qrImageUrl && qrImgError && (
+                  <a
+                    href={walletInfo.qrImageUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-blue-600 underline text-sm mb-2"
+                  >
+                    Open QR Code in new tab
+                  </a>
                 )}
                 <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">Do not send any other coin. Deposits are credited after network confirmation and admin approval.</div>
               </div>
