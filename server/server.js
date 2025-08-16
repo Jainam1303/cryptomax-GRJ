@@ -37,15 +37,14 @@ app.use(cors(corsOptions));
 const { getUploadsDir } = require('./config/uploads');
 const uploadsDir = getUploadsDir();
 console.log('📂 Uploads directory resolved to:', uploadsDir);
+// Serve uploads directory for QR code images EARLY (before routes/error handlers)
+app.use('/uploads', express.static(uploadsDir));
 
 // Routes
 app.use('/', routes);
 
 // Error handler middleware (must be after routes)
 app.use(errorHandler);
-
-// Serve uploads directory for QR code images
-app.use('/uploads', express.static(uploadsDir));
 
 // Define port
 const PORT = process.env.PORT || 5000;
