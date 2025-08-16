@@ -55,7 +55,7 @@ const CryptoPage = () => {
   useEffect(() => {
     async function fetchInitialCryptos() {
       try {
-        const res = await api.get('/api/cryptos');
+        const res = await api.get('/api/crypto');
         setTickerCryptos(res.data);
       } catch (err) {
         // Optionally handle error
