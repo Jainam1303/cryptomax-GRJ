@@ -12,6 +12,7 @@ import { useInvestment } from '../context/InvestmentContext';
 import { useWallet } from '../context/WalletContext';
 import { useAuth } from '../context/AuthContext';
 import { io as socketIOClient } from 'socket.io-client';
+import { BASE_URL } from '../services/api';
 import InvestmentPlansModal from '../components/invest/InvestmentPlansModal';
 import api from '../services/api';
 
@@ -65,7 +66,11 @@ const CryptoPage = () => {
 
   // Connect to socket.io and listen for updates
   useEffect(() => {
-    const socket = socketIOClient('http://localhost:5000');
+    // Derive socket origin from BASE_URL
+    const socket = socketIOClient(BASE_URL, {
+      withCredentials: true,
+      transports: ['websocket', 'polling']
+    });
     setSocket(socket);
     socket.on('cryptos:update', (updatedCryptos: Crypto[]) => {
       setTickerCryptos(updatedCryptos);
