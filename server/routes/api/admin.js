@@ -6,10 +6,11 @@ const adminController = require('../../controllers/adminController');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const { getUploadsDir } = require('../../config/uploads');
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const uploadDir = path.join(__dirname, '../../uploads');
+    const uploadDir = getUploadsDir();
     try {
       fs.mkdirSync(uploadDir, { recursive: true });
     } catch (e) {

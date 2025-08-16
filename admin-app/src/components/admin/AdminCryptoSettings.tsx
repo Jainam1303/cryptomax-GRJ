@@ -108,7 +108,11 @@ const AdminCryptoSettings: React.FC = () => {
       const res = await api.post('/api/admin/deposit-wallets/usdt_trc20/qr-upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-      handleUsdtWalletChange('qrImageUrl', res.data.qrImageUrl);
+      // Normalize to absolute URL in case backend returns a relative path
+      const base = (api.defaults.baseURL || '').replace(/\/$/, '');
+      const serverUrl: string = res.data?.qrImageUrl || '';
+      const absolute = serverUrl.startsWith('http') ? serverUrl : `${base}${serverUrl}`;
+      handleUsdtWalletChange('qrImageUrl', absolute);
     } catch (err: any) {
       setUsdtError('Failed to upload QR code image.');
     } finally {

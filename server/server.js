@@ -33,6 +33,10 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
+// Ensure uploads directory exists (for QR uploads) via centralized resolver
+const { getUploadsDir } = require('./config/uploads');
+const uploadsDir = getUploadsDir();
+
 // Routes
 app.use('/', routes);
 
@@ -40,8 +44,7 @@ app.use('/', routes);
 app.use(errorHandler);
 
 // Serve uploads directory for QR code images
-const path = require('path');
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(uploadsDir));
 
 // Define port
 const PORT = process.env.PORT || 5000;
