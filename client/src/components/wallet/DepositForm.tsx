@@ -9,13 +9,6 @@ import Button from '../ui/button';
 import { Alert } from '../ui/Alert';
 import api from '../../services/api';
 
-// Helper to ensure .jpg extension if missing
-function ensureJpgExtension(url: string) {
-  if (!url) return url;
-  if (/\.(jpg|jpeg|png|gif|webp)$/i.test(url)) return url;
-  return url + '.jpg';
-}
-
 const DepositForm: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { loading, error } = useSelector((state: RootState) => state.wallet);
@@ -173,7 +166,7 @@ const DepositForm: React.FC = () => {
                   <Button size="sm" variant="outline" className="ml-2" type="button" onClick={handleCopy}>Copy</Button>
                 </div>
                 {walletInfo.qrImageUrl && (
-                  <img src={ensureJpgExtension(walletInfo.qrImageUrl)} alt="USDT QR Code" className="w-40 h-40 object-contain border rounded mb-2" />
+                  <img src={walletInfo.qrImageUrl} alt="USDT QR Code" className="w-40 h-40 object-contain border rounded mb-2" />
                 )}
                 <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">Do not send any other coin. Deposits are credited after network confirmation and admin approval.</div>
               </div>
