@@ -29,9 +29,13 @@ const corsOptions = {
   origin: isWildcard
     ? function (origin, callback) { callback(null, true); }
     : allowedOrigins,
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'x-auth-token', 'Authorization']
 };
 app.use(cors(corsOptions));
+// Ensure preflight requests are handled
+app.options('*', cors(corsOptions));
 
 // Ensure uploads directory exists (for QR uploads) via centralized resolver
 const { getUploadsDir } = require('./config/uploads');
