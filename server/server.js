@@ -16,13 +16,15 @@ connectDB(); // 👈 uses process.env.MONGO_URI
 
 // Middleware
 app.use(express.json({ extended: false }));
+// Derive allowed origins from env for prod cleanliness
+// ALLOW_ORIGINS should be a comma-separated list of origins
+// Example: https://client.vercel.app,https://admin.vercel.app
+const allowedOrigins = (process.env.ALLOW_ORIGINS || 'http://localhost:8080,http://localhost:5173')
+  .split(',')
+  .map(o => o.trim())
+  .filter(Boolean);
 const corsOptions = {
-  origin: [
-    'http://localhost:8080',
-    'http://localhost:5173',
-    'https://cryptomax-4d3ejeovp-johns-projects-617e0ae6.vercel.app',
-    'https://cryptomax-veqf-fm6z15t91-johns-projects-617e0ae6.vercel.app/'
-  ],
+  origin: allowedOrigins,
   credentials: true
 };
 app.use(cors(corsOptions));
@@ -46,10 +48,7 @@ const server = http.createServer(app);
 const { Server } = require('socket.io');
 const io = new Server(server, {
   cors: {
-    origin: [
-      'http://localhost:8080',
-      'http://localhost:5173'
-    ],
+    origin: allowedOrigins,
     methods: ['GET', 'POST']
   }
 });
@@ -69,4 +68,3 @@ io.on('connection', (socket) => {
 // Start server
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 startCryptoTicker(io);
-
