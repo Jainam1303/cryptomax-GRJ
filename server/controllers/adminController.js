@@ -561,10 +561,13 @@ exports.getDepositWallet = async (req, res) => {
     if (!wallet) {
       return res.status(404).json({ msg: 'Deposit wallet not found' });
     }
-    // Prefer API route to stream QR if stored in DB
-    const qrUrl = wallet.qrImage && wallet.qrImage.data
-      ? `/api/crypto/deposit-wallets/${coin}/qr`
-      : (wallet.qrImageUrl || '');
+    // Prefer API route to stream QR if stored in DB; build absolute URL
+    const proto = (req.headers['x-forwarded-proto'] || req.protocol || 'http').toString();
+    const host = req.get('host');
+    const relativeQrPath = `/api/crypto/deposit-wallets/${coin}/qr`;
+    const qrUrl = (wallet.qrImage && wallet.qrImage.data)
+      ? `${proto}://${host}${relativeQrPath}`
+      : (wallet.qrImageUrl && wallet.qrImageUrl.startsWith('http') ? wallet.qrImageUrl : (wallet.qrImageUrl ? `${proto}://${host}${wallet.qrImageUrl}` : ''));
     return res.json({
       coin: wallet.coin,
       address: wallet.address,
@@ -616,8 +619,10 @@ exports.uploadDepositWalletQr = async (req, res) => {
       data: req.file.buffer,
       contentType: req.file.mimetype || 'image/png'
     };
-    // Also set a stable API URL
-    wallet.qrImageUrl = `/api/crypto/deposit-wallets/${coin}/qr`;
+    // Also set a stable API URL (absolute)
+    const proto = (req.headers['x-forwarded-proto'] || req.protocol || 'http').toString();
+    const host = req.get('host');
+    wallet.qrImageUrl = `${proto}://${host}/api/crypto/deposit-wallets/${coin}/qr`;
     await wallet.save();
     return res.json({ qrImageUrl: wallet.qrImageUrl });
   } catch (err) {
