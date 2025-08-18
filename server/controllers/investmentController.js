@@ -55,22 +55,14 @@ exports.getInvestments = async (req, res) => {
         // Calculate total earnings based on daily return
         const calculatedEarnings = (investment.amount * investment.dailyReturnPercentage * actualDays) / 100;
         
-        // Check if manual adjustment is active
-        let totalEarnings, currentValue, profitLoss, profitLossPercentage;
-        
-        if (investment.manualAdjustment.isActive) {
-          // Use manual adjustment amount
-          profitLoss = investment.manualAdjustment.amount;
-          totalEarnings = profitLoss;
-          currentValue = investment.amount + profitLoss;
-          profitLossPercentage = (profitLoss / investment.amount) * 100;
-        } else {
-          // Use calculated earnings
-          totalEarnings = calculatedEarnings;
-          profitLoss = calculatedEarnings;
-          currentValue = investment.amount + calculatedEarnings;
-          profitLossPercentage = (profitLoss / investment.amount) * 100;
-        }
+        // Combine calculated earnings with any active manual adjustment (additive)
+        const manualOffset = investment.manualAdjustment.isActive ? (investment.manualAdjustment.amount || 0) : 0;
+        const combinedEarnings = calculatedEarnings + manualOffset;
+
+        const totalEarnings = combinedEarnings;
+        const profitLoss = combinedEarnings;
+        const currentValue = investment.amount + combinedEarnings;
+        const profitLossPercentage = (profitLoss / investment.amount) * 100;
         
         // Update investment with subscription-based values
         investment.currentValue = currentValue;
@@ -291,22 +283,14 @@ exports.getPortfolio = async (req, res) => {
       // Calculate total earnings based on daily return
       const calculatedEarnings = (amount * investment.dailyReturnPercentage * actualDays) / 100;
       
-      // Check if manual adjustment is active
-      let totalEarnings, currentValue, profitLoss, profitLossPercentage;
-      
-      if (investment.manualAdjustment.isActive) {
-        // Use manual adjustment amount
-        profitLoss = investment.manualAdjustment.amount;
-        totalEarnings = profitLoss;
-        currentValue = amount + profitLoss;
-        profitLossPercentage = (profitLoss / amount) * 100;
-      } else {
-        // Use calculated earnings
-        totalEarnings = calculatedEarnings;
-        profitLoss = calculatedEarnings;
-        currentValue = amount + calculatedEarnings;
-        profitLossPercentage = (profitLoss / amount) * 100;
-      }
+      // Combine calculated earnings with any active manual adjustment (additive)
+      const manualOffset = investment.manualAdjustment.isActive ? (investment.manualAdjustment.amount || 0) : 0;
+      const combinedEarnings = calculatedEarnings + manualOffset;
+
+      const totalEarnings = combinedEarnings;
+      const profitLoss = combinedEarnings;
+      const currentValue = amount + combinedEarnings;
+      const profitLossPercentage = (profitLoss / amount) * 100;
       
       // Update investment with subscription-based values
       investment.currentValue = currentValue;
