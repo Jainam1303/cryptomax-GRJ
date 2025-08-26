@@ -80,8 +80,9 @@ const DashboardPage = () => {
       </div>
     );
   }
-  const zeroInvestments = investments.filter(inv => inv.amount === 0 || inv.quantity === 0);
-  const activeInvestments = investments.filter((inv: any) => inv.status === 'active');
+  const zeroInvestments = investments.filter((inv: any) => inv?.amount === 0 || inv?.quantity === 0);
+  // Only include investments that have a crypto object to avoid null access
+  const activeInvestments = investments.filter((inv: any) => inv && inv.status === 'active' && inv.crypto);
   if (zeroInvestments.length > 0) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -304,7 +305,7 @@ const DashboardPage = () => {
             <div className="px-6 pb-6">
               <div className="space-y-4">
                 {activeInvestments.length > 0 ? (
-                  activeInvestments.map((investment, index) => {
+                  activeInvestments.map((investment: any, index: number) => {
                     // Use backend-calculated values for subscription investments
                     const currentValue = investment.currentValue || investment.amount;
                     const profitLoss = investment.profitLoss || 0;
@@ -313,13 +314,13 @@ const DashboardPage = () => {
                     return (
                       <div key={index} className="flex items-center justify-between p-4 rounded-lg bg-neutral-800/50 hover:bg-neutral-800 transition-colors">
                         <div className="flex items-center space-x-4">
-                          {investment.crypto.image ? (
+                          {investment.crypto?.image ? (
                             <img
                               src={investment.crypto.image}
-                              alt={investment.crypto.symbol}
+                              alt={investment.crypto?.symbol || 'Crypto'}
                               className="w-10 h-10 rounded-full object-cover"
                             />
-                          ) : investment.crypto.symbol === 'BTC' ? (
+                          ) : investment.crypto?.symbol === 'BTC' ? (
                             <img
                               src="https://assets.coingecko.com/coins/images/1/large/bitcoin.png"
                               alt="Bitcoin"
@@ -327,11 +328,11 @@ const DashboardPage = () => {
                             />
                           ) : (
                             <div className="w-10 h-10 bg-gradient-to-r from-orange-400 to-yellow-400 rounded-full flex items-center justify-center">
-                              <span className="text-white font-bold text-xs">{investment.crypto.symbol[0]}</span>
+                              <span className="text-white font-bold text-xs">{investment.crypto?.symbol?.[0] || '?'}</span>
                             </div>
                           )}
                           <div>
-                            <div className="font-semibold text-neutral-100">{investment.crypto.name}</div>
+                            <div className="font-semibold text-neutral-100">{investment.crypto?.name || 'Unknown Crypto'}</div>
                             <div className="text-sm text-neutral-400">{investment.investmentPlan?.name || 'Subscription Plan'}</div>
                           </div>
                         </div>

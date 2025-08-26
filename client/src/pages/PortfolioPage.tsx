@@ -33,8 +33,8 @@ const PortfolioPage: React.FC = () => {
 
   // Active holdings: always filter to status==='active' to be safe (backend or mock mode)
   const activeInvestments = (portfolio?.investments && Array.isArray(portfolio.investments))
-    ? portfolio.investments.filter(inv => inv.status === 'active')
-    : investments.filter(inv => inv.status === 'active');
+    ? portfolio.investments.filter((inv: any) => inv?.status === 'active' && inv?.crypto)
+    : investments.filter((inv: any) => inv?.status === 'active' && inv?.crypto);
 
   // Helper to get live price for a crypto
   const getLivePrice = (cryptoId: string, fallback: number) => {
@@ -151,7 +151,7 @@ const PortfolioPage: React.FC = () => {
             ) : (
               <>
                 {activeInvestments && activeInvestments.length > 0 ? (
-                  activeInvestments.map((investment) => {
+                  activeInvestments.map((investment: any) => {
                     // Use backend-calculated values for subscription investments
                     const currentValue = investment.currentValue || investment.amount;
                     const profitLoss = investment.profitLoss || 0;
@@ -160,13 +160,13 @@ const PortfolioPage: React.FC = () => {
                     return (
                       <div key={investment._id} className="flex items-center justify-between p-4 rounded-lg bg-neutral-900/60 border border-neutral-800 hover:bg-neutral-800/60 transition-colors">
                         <div className="flex items-center space-x-4">
-                          {investment.crypto.image ? (
+                          {investment.crypto?.image ? (
                             <img
                               src={investment.crypto.image}
-                              alt={investment.crypto.symbol}
+                              alt={investment.crypto?.symbol || 'Crypto'}
                               className="w-12 h-12 rounded-full object-cover"
                             />
-                          ) : investment.crypto.symbol === 'BTC' ? (
+                          ) : investment.crypto?.symbol === 'BTC' ? (
                             <img
                               src="https://assets.coingecko.com/coins/images/1/large/bitcoin.png"
                               alt="Bitcoin"
@@ -174,11 +174,11 @@ const PortfolioPage: React.FC = () => {
                             />
                           ) : (
                             <div className="w-12 h-12 bg-gradient-to-r from-orange-400 to-yellow-400 rounded-full flex items-center justify-center">
-                              <span className="text-white font-bold">{investment.crypto.symbol[0]}</span>
+                              <span className="text-white font-bold">{investment.crypto?.symbol?.[0] || '?'}</span>
                             </div>
                           )}
                           <div>
-                            <div className="font-semibold text-foreground">{investment.crypto.name}</div>
+                            <div className="font-semibold text-foreground">{investment.crypto?.name || 'Unknown Crypto'}</div>
                             <div className="text-sm text-muted-foreground">
                               {investment.investmentPlan?.name || 'Subscription Plan'}
                             </div>
@@ -187,14 +187,14 @@ const PortfolioPage: React.FC = () => {
                         
                         <div className="text-center">
                           <div className="text-sm text-muted-foreground">Invested</div>
-                          <div className="font-semibold text-foreground">${investment.amount.toLocaleString()}</div>
+                          <div className="font-semibold text-foreground">${(investment.amount ?? 0).toLocaleString()}</div>
                         </div>
                         
                         <div className="text-center">
                           <div className="text-sm text-muted-foreground">Current Value</div>
                           <div className="font-semibold text-green-600">${currentValue.toLocaleString()}</div>
                           <div className="text-xs text-muted-foreground">
-                            {investment.dailyReturnPercentage}% daily return
+                            {investment.dailyReturnPercentage ?? 0}% daily return
                           </div>
                         </div>
                         
