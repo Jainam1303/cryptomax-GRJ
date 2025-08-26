@@ -9,6 +9,9 @@ const DepositWallet = require('../models/DepositWallet');
 const Commission = require('../models/Commission');
 
 const path = require('path');
+// Seeding utilities
+const seedCryptoData = require('../utils/seedCryptoData');
+const seedInvestmentPlansUtil = require('../utils/seedInvestmentPlans');
 
 // @route   GET api/admin/users
 // @desc    Get all users
@@ -1232,5 +1235,51 @@ exports.exportCommissionsCsv = async (req, res) => {
   } catch (err) {
     console.error('Admin export commissions CSV error:', err.message);
     res.status(500).json({ msg: 'Server error' });
+  }
+};
+
+// ==================== DATA SEEDING (Admin) ====================
+// @route   POST api/admin/seed/cryptos
+// @desc    Seed cryptocurrencies (reset and insert sample list)
+// @access  Private/Admin
+exports.seedCryptos = async (req, res) => {
+  try {
+    const ok = await seedCryptoData();
+    if (!ok) return res.status(500).json({ success: false, message: 'Failed to seed cryptos' });
+    const count = await Crypto.countDocuments();
+    res.json({ success: true, message: `Seeded ${count} cryptocurrencies` });
+  } catch (err) {
+    console.error('Admin seed cryptos error:', err.message);
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// @route   POST api/admin/seed/plans
+// @desc    Seed investment plans for all active cryptos
+// @access  Private/Admin
+exports.seedInvestmentPlans = async (req, res) => {
+  try {
+    const result = await seedInvestmentPlansUtil();
+    if (!result.success) return res.status(400).json(result);
+    res.json(result);
+  } catch (err) {
+    console.error('Admin seed plans error:', err.message);
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// @route   POST api/admin/seed/all
+// @desc    Seed cryptos and then investment plans
+// @access  Private/Admin
+exports.seedAll = async (req, res) => {
+  try {
+    const ok = await seedCryptoData();
+    if (!ok) return res.status(500).json({ success: false, message: 'Failed to seed cryptos' });
+    const plansResult = await seedInvestmentPlansUtil();
+    const count = await Crypto.countDocuments();
+    res.json({ success: true, cryptos: count, plans: plansResult });
+  } catch (err) {
+    console.error('Admin seed all error:', err.message);
+    res.status(500).json({ success: false, message: err.message });
   }
 };

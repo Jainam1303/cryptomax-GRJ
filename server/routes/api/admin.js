@@ -130,4 +130,13 @@ router.put('/commissions/:id/pay', adminController.markCommissionPaid);
 // @access  Private/Admin
 router.get('/commissions/export.csv', adminController.exportCommissionsCsv);
 
+// ==================== DATA SEEDING ====================
+// Secure admin-only endpoints to trigger DB seeding without shell access
+// @route   POST api/admin/seed/cryptos
+router.post('/seed/cryptos', adminController.seedCryptos);
+// @route   POST api/admin/seed/plans
+router.post('/seed/plans', adminController.seedInvestmentPlans);
+// @route   POST api/admin/seed/all
+router.post('/seed/all', adminController.seedAll);
+
 module.exports = router;
