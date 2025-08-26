@@ -133,12 +133,29 @@ const UserManagement: React.FC = () => {
                       </Badge>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <Badge
-                        variant={user.isVerified ? 'success' : 'warning'}
-                        size="sm"
-                      >
-                        {user.isVerified ? 'Verified' : 'Unverified'}
-                      </Badge>
+                      {(() => {
+                        const kyc = user.kyc || {};
+                        const status = (kyc.status || 'none').toLowerCase();
+                        const labelMap: Record<string, string> = {
+                          approved: 'KYC Approved',
+                          pending: 'KYC Pending',
+                          rejected: 'KYC Rejected',
+                          none: 'No KYC',
+                        };
+                        const variantMap: Record<string, 'success' | 'warning' | 'destructive' | 'default'> = {
+                          approved: 'success',
+                          pending: 'warning',
+                          rejected: 'destructive',
+                          none: 'default',
+                        };
+                        const label = labelMap[status] || 'No KYC';
+                        const variant = variantMap[status] || 'default';
+                        return (
+                          <Badge variant={variant} size="sm">
+                            {label}
+                          </Badge>
+                        );
+                      })()}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="text-sm text-gray-900 dark:text-white">

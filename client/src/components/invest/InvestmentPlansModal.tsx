@@ -5,7 +5,7 @@ import { RootState, AppDispatch } from '../../redux/store';
 import { formatCurrency } from '../../utils/formatters';
 import { Crypto } from '../../types';
 import { Input } from '../ui/Input';
-import Button from '../ui/button';
+import { Button } from '../ui/button';
 import { Alert, AlertDescription } from '../ui/Alert';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog';
 import { Badge } from '../ui/Badge';
@@ -147,21 +147,21 @@ const InvestmentPlansModal: React.FC<InvestmentPlansModalProps> = ({
   
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[95vh] overflow-y-auto bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      <DialogContent className="max-w-6xl max-h-[95vh] overflow-y-auto bg-neutral-900/90 text-neutral-100 border border-neutral-800">
         <DialogHeader className="text-center pb-6">
           <div className="flex items-center justify-center mb-4">
             {crypto.image ? (
               <img src={crypto.image} alt={crypto.symbol} className="w-16 h-16 rounded-full mr-4" />
             ) : (
-              <div className="w-16 h-16 bg-gradient-to-r from-orange-400 to-yellow-400 rounded-full flex items-center justify-center mr-4">
+              <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-full flex items-center justify-center mr-4">
                 <span className="text-white font-bold text-xl">{crypto.symbol[0]}</span>
               </div>
             )}
             <div>
-              <DialogTitle className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              <DialogTitle className="text-3xl font-bold text-neutral-100">
                 Investment Plans - {crypto.name} ({crypto.symbol})
               </DialogTitle>
-              <DialogDescription className="text-lg text-gray-600 mt-2">
+              <DialogDescription className="text-lg text-neutral-400 mt-2">
                 Choose a subscription-based investment plan with guaranteed daily returns
               </DialogDescription>
             </div>
@@ -180,7 +180,7 @@ const InvestmentPlansModal: React.FC<InvestmentPlansModalProps> = ({
           </div>
         ) : plans.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">No investment plans available for this cryptocurrency.</p>
+            <p className="text-neutral-400 text-lg">No investment plans available for this cryptocurrency.</p>
           </div>
         ) : (
           <div className="space-y-8">
@@ -189,17 +189,17 @@ const InvestmentPlansModal: React.FC<InvestmentPlansModalProps> = ({
               {plans.map((plan, index) => (
                 <div
                   key={plan._id}
-                  className={`relative border-2 rounded-xl p-6 cursor-pointer transition-all duration-300 transform hover:scale-105 ${
+                  className={`relative border rounded-xl p-6 cursor-pointer transition-all duration-300 ${
                     selectedPlan?._id === plan._id
-                      ? 'border-blue-500 bg-gradient-to-br from-blue-50 to-indigo-50 shadow-lg shadow-blue-200'
-                      : 'border-gray-200 hover:border-blue-300 bg-white hover:shadow-lg'
+                      ? 'border-blue-500/60 bg-neutral-900 shadow-lg shadow-blue-900/20'
+                      : 'border-neutral-800 bg-neutral-900/60 hover:bg-neutral-800/60'
                   }`}
                   onClick={() => handlePlanSelect(plan)}
                 >
                   {/* Popular Badge */}
                   {index === 2 && (
                     <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                      <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-4 py-1 text-xs font-bold">
+                      <Badge className="bg-gradient-to-r from-yellow-500 to-orange-600 text-white px-4 py-1 text-xs font-bold">
                         MOST POPULAR
                       </Badge>
                     </div>
@@ -207,16 +207,16 @@ const InvestmentPlansModal: React.FC<InvestmentPlansModalProps> = ({
                   
                   {/* Plan Header */}
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-bold text-xl text-gray-900">{plan.name}</h3>
+                    <h3 className="font-bold text-xl text-neutral-100">{plan.name}</h3>
                     {selectedPlan?._id === plan._id && (
-                      <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                      <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
                         <Check className="w-5 h-5 text-white" />
                       </div>
                     )}
                   </div>
                   
                   {/* Daily Return - Highlighted */}
-                  <div className="bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg p-4 mb-4 text-white">
+                  <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg p-4 mb-4 text-white">
                     <div className="flex items-center justify-center">
                       <TrendingUp className="w-6 h-6 mr-2" />
                       <span className="text-2xl font-bold">{plan.dailyReturnPercentage}%</span>
@@ -227,27 +227,27 @@ const InvestmentPlansModal: React.FC<InvestmentPlansModalProps> = ({
                   {/* Plan Details */}
                   <div className="space-y-3 mb-4">
                     <div className="flex items-center text-sm">
-                      <Calendar className="w-4 h-4 mr-2 text-blue-600" />
+                      <Calendar className="w-4 h-4 mr-2 text-blue-500" />
                       <span className="font-semibold">{plan.duration} days</span>
-                      <span className="text-gray-500 ml-1">duration</span>
+                      <span className="text-neutral-400 ml-1">duration</span>
                     </div>
                     
                     <div className="flex items-center text-sm">
-                      <Star className="w-4 h-4 mr-2 text-yellow-600" />
+                      <Star className="w-4 h-4 mr-2 text-yellow-500" />
                       <span className="font-semibold">{plan.totalReturnPercentage}%</span>
-                      <span className="text-gray-500 ml-1">total return</span>
+                      <span className="text-neutral-400 ml-1">total return</span>
                     </div>
                   </div>
                   
                   {/* Investment Range */}
-                  <div className="bg-gray-50 rounded-lg p-3 mb-4">
-                    <p className="text-sm font-medium text-gray-700">
+                  <div className="bg-neutral-900/40 border border-neutral-800 rounded-lg p-3 mb-4">
+                    <p className="text-sm font-medium text-neutral-200">
                       Investment Range: ${plan.minAmount.toLocaleString()} - ${plan.maxAmount.toLocaleString()}
                     </p>
                   </div>
                   
                   {/* Description */}
-                  <p className="text-sm text-gray-700 mb-4 leading-relaxed">
+                  <p className="text-sm text-neutral-300 mb-4 leading-relaxed">
                     {plan.description}
                   </p>
                   
@@ -256,8 +256,8 @@ const InvestmentPlansModal: React.FC<InvestmentPlansModalProps> = ({
                     <div className="space-y-2">
                       {plan.features.map((feature, index) => (
                         <div key={index} className="flex items-center text-xs">
-                          <Check className="w-3 h-3 mr-2 text-green-600 flex-shrink-0" />
-                          <span className="text-gray-600">{feature}</span>
+                          <Check className="w-3 h-3 mr-2 text-green-500 flex-shrink-0" />
+                          <span className="text-neutral-400">{feature}</span>
                         </div>
                       ))}
                     </div>
@@ -268,13 +268,13 @@ const InvestmentPlansModal: React.FC<InvestmentPlansModalProps> = ({
             
             {/* Investment Form */}
             {selectedPlan && (
-              <div className="border-t border-gray-200 pt-8">
-                <div className="bg-white rounded-xl p-6 shadow-lg">
-                  <h3 className="text-2xl font-bold mb-6 text-center">Ready to Invest?</h3>
+              <div className="border-t border-neutral-800 pt-8">
+                <div className="bg-neutral-900/60 backdrop-blur-md border border-neutral-800 rounded-xl p-6 shadow-lg">
+                  <h3 className="text-2xl font-bold mb-6 text-center text-neutral-100">Ready to Invest?</h3>
                   
                   <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
-                      <label className="block text-lg font-semibold mb-3 text-gray-700">
+                      <label className="block text-lg font-semibold mb-3 text-neutral-200">
                         Investment Amount (USD)
                       </label>
                       <Input
@@ -291,43 +291,43 @@ const InvestmentPlansModal: React.FC<InvestmentPlansModalProps> = ({
                       {formError && (
                         <p className="text-red-500 text-sm mt-2">{formError}</p>
                       )}
-                      <p className="text-sm text-gray-500 mt-2">
-                        Available balance: <span className="font-semibold text-green-600">{formatCurrency(wallet?.balance || 0)}</span>
+                      <p className="text-sm text-neutral-400 mt-2">
+                        Available balance: <span className="font-semibold text-green-500">{formatCurrency(wallet?.balance || 0)}</span>
                       </p>
                     </div>
                     
                     {/* Investment Summary */}
                     {amount && parseFloat(amount) > 0 && (
-                      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 space-y-4">
-                        <h4 className="font-bold text-lg text-gray-900">Investment Summary</h4>
+                      <div className="bg-neutral-900/40 border border-neutral-800 rounded-xl p-6 space-y-4">
+                        <h4 className="font-bold text-lg text-neutral-100">Investment Summary</h4>
                         
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                          <div className="bg-white rounded-lg p-4 text-center">
-                            <div className="text-2xl font-bold text-green-600">
+                          <div className="bg-neutral-900/60 border border-neutral-800 rounded-lg p-4 text-center">
+                            <div className="text-2xl font-bold text-green-500">
                               {formatCurrency(calculateDailyEarnings(parseFloat(amount), selectedPlan.dailyReturnPercentage))}
                             </div>
-                            <div className="text-sm text-gray-600">Daily Earnings</div>
+                            <div className="text-sm text-neutral-400">Daily Earnings</div>
                           </div>
                           
-                          <div className="bg-white rounded-lg p-4 text-center">
-                            <div className="text-2xl font-bold text-blue-600">
+                          <div className="bg-neutral-900/60 border border-neutral-800 rounded-lg p-4 text-center">
+                            <div className="text-2xl font-bold text-blue-500">
                               {formatCurrency(calculateTotalEarnings(parseFloat(amount), selectedPlan.totalReturnPercentage))}
                             </div>
-                            <div className="text-sm text-gray-600">Total Earnings</div>
+                            <div className="text-sm text-neutral-400">Total Earnings</div>
                           </div>
                           
-                          <div className="bg-white rounded-lg p-4 text-center">
-                            <div className="text-2xl font-bold text-purple-600">
+                          <div className="bg-neutral-900/60 border border-neutral-800 rounded-lg p-4 text-center">
+                            <div className="text-2xl font-bold text-purple-500">
                               {selectedPlan.duration}
                             </div>
-                            <div className="text-sm text-gray-600">Days</div>
+                            <div className="text-sm text-neutral-400">Days</div>
                           </div>
                           
-                          <div className="bg-white rounded-lg p-4 text-center">
-                            <div className="text-2xl font-bold text-orange-600">
+                          <div className="bg-neutral-900/60 border border-neutral-800 rounded-lg p-4 text-center">
+                            <div className="text-2xl font-bold text-orange-500">
                               {selectedPlan.totalReturnPercentage}%
                             </div>
-                            <div className="text-sm text-gray-600">Total Return</div>
+                            <div className="text-sm text-neutral-400">Total Return</div>
                           </div>
                         </div>
                       </div>
@@ -335,9 +335,8 @@ const InvestmentPlansModal: React.FC<InvestmentPlansModalProps> = ({
                     
                     <Button
                       type="submit"
-                      variant="primary"
-                      isLoading={loading}
-                      disabled={!selectedPlan || !amount || parseFloat(amount) <= 0 || !!formError}
+                      variant="default"
+                      disabled={loading || !selectedPlan || !amount || parseFloat(amount) <= 0 || !!formError}
                       className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold text-lg py-4 rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200"
                     >
                       {loading ? 'Processing Investment...' : `🚀 Invest $${amount || '0'} Now`}

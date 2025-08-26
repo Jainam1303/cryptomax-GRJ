@@ -2,8 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Wallet, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { formatCurrency } from '../../utils/formatters';
-import Card from '../ui/Card';
-import Button from '../ui/Button';
+import { Card } from '../ui/card';
+import { Button } from '../ui/button';
 import { Wallet as WalletType } from '../../types';
 import { Input } from '../ui/Input';
 
@@ -57,20 +57,14 @@ const BalanceCard: React.FC<BalanceCardProps> = ({ wallet }) => {
       
       <div className="grid grid-cols-2 gap-4">
         <Link to="/wallet?action=deposit">
-          <Button
-            variant="primary"
-            fullWidth
-            leftIcon={<ArrowUpRight className="h-4 w-4" />}
-          >
+          <Button variant="default" className="w-full">
+            <ArrowUpRight className="h-4 w-4" />
             Deposit
           </Button>
         </Link>
         <Link to="/wallet?action=withdraw">
-          <Button
-            variant="outline"
-            fullWidth
-            leftIcon={<ArrowDownRight className="h-4 w-4" />}
-          >
+          <Button variant="outline" className="w-full">
+            <ArrowDownRight className="h-4 w-4" />
             Withdraw
           </Button>
         </Link>

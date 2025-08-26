@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Button from "@/components/ui/button";
-import Card from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
-import { User, Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
+import { User, Mail, Lock, Eye, EyeOff, Loader2, Tag } from "lucide-react";
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../hooks/use-toast';
+import { setReferralCode } from '../lib/referral';
 
 const RegisterPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -15,7 +16,8 @@ const RegisterPage = () => {
     fullName: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    referralCode: ''
   });
 
   const navigate = useNavigate();
@@ -35,6 +37,9 @@ const RegisterPage = () => {
     }
 
     try {
+      // Persist referral code if user entered one; AuthContext will pick it up
+      const code = formData.referralCode?.trim();
+      if (code) setReferralCode(code);
       await register(formData.fullName, formData.email, formData.password);
       navigate('/dashboard');
     } catch (error) {
@@ -43,29 +48,27 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-black flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center space-x-2">
-            <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold">CM</span>
-            </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            <img src="/logos/CMlogo.svg" alt="CryptoMax" className="w-12 h-12 rounded-lg" />
+            <span className="text-2xl font-bold bg-gradient-to-r from-emerald-500 to-lime-500 bg-clip-text text-transparent">
               CryptoMax
             </span>
           </Link>
         </div>
 
-        <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+        <Card className="shadow-xl border border-neutral-800 bg-neutral-900/80 backdrop-blur-sm text-neutral-100 ring-1 ring-emerald-500/20 shadow-[0_0_30px_rgba(34,197,94,0.12)] hover:shadow-[0_0_40px_rgba(132,204,22,0.18)] transition-shadow">
           <div className="space-y-1 text-center px-6 pt-6">
             <h2 className="text-2xl font-bold">Create your account</h2>
-            <p className="text-gray-600">Start your crypto investment journey today</p>
+            <p className="text-gray-400">Start your crypto investment journey today</p>
           </div>
           <div className="space-y-4 px-6 pb-6">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="fullName">Full Name</Label>
+                <Label htmlFor="fullName" className="text-neutral-200">Full Name</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
@@ -81,7 +84,7 @@ const RegisterPage = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="text-neutral-200">Email</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
@@ -95,9 +98,24 @@ const RegisterPage = () => {
                   />
                 </div>
               </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="referralCode" className="text-neutral-200">Referral Code (optional)</Label>
+                <div className="relative">
+                  <Tag className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="referralCode"
+                    type="text"
+                    placeholder="Enter referral code if you have one"
+                    className="pl-10"
+                    value={formData.referralCode}
+                    onChange={(e) => setFormData({...formData, referralCode: e.target.value})}
+                  />
+                </div>
+              </div>
               
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password" className="text-neutral-200">Password</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
@@ -120,7 +138,7 @@ const RegisterPage = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <Label htmlFor="confirmPassword" className="text-neutral-200">Confirm Password</Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
@@ -144,13 +162,13 @@ const RegisterPage = () => {
               
               <div className="flex items-start space-x-2">
                 <input type="checkbox" className="mt-1 rounded border-gray-300" required />
-                <label className="text-sm text-gray-600">
+                <label className="text-sm text-gray-400">
                   I agree to the{' '}
-                  <Link to="/terms" className="text-blue-600 hover:text-blue-700">
+                  <Link to="/terms" className="text-emerald-400 hover:text-emerald-300">
                     Terms of Service
                   </Link>{' '}
                   and{' '}
-                  <Link to="/privacy" className="text-blue-600 hover:text-blue-700">
+                  <Link to="/privacy" className="text-emerald-400 hover:text-emerald-300">
                     Privacy Policy
                   </Link>
                 </label>
@@ -159,7 +177,7 @@ const RegisterPage = () => {
               <Button 
                 type="submit" 
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                className="w-full bg-gradient-to-r from-emerald-500 to-lime-500 hover:from-emerald-400 hover:to-lime-400 text-black font-semibold shadow-[0_0_20px_rgba(34,197,94,0.6)]"
               >
                 {loading ? (
                   <>
@@ -173,8 +191,8 @@ const RegisterPage = () => {
             </form>
             {/* Remove Google registration button and divider */}
             <div className="text-center text-sm">
-              <span className="text-gray-600">Already have an account? </span>
-              <Link to="/login" className="text-blue-600 hover:text-blue-700 font-medium">
+              <span className="text-gray-400">Already have an account? </span>
+              <Link to="/login" className="text-emerald-400 hover:text-emerald-300 font-medium">
                 Sign in
               </Link>
             </div>

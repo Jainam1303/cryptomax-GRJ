@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import Card from "@/components/ui/card";
-import Button from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/Badge";
@@ -76,28 +76,26 @@ const TransactionsPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-black text-neutral-100">
       {/* Navigation */}
-      <nav className="bg-white/80 backdrop-blur-md border-b border-gray-200">
+      <nav className="bg-neutral-900/60 backdrop-blur-md border-b border-neutral-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
-              <Link to="/dashboard" className="flex items-center text-gray-600 hover:text-gray-900">
+              <Link to="/dashboard" className="flex items-center text-muted-foreground hover:text-primary transition-colors">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Dashboard
               </Link>
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">CM</span>
-                </div>
-                <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                <img src="/logos/CMlogo.svg" alt="CryptoMax" className="w-12 h-12 rounded-lg" />
+                <span className="text-xl font-bold gradient-text">
                   CryptoMax
                 </span>
               </div>
             </div>
             
             <div className="flex items-center space-x-4">
-              <span className="text-gray-700">Welcome, {user?.name}</span>
+              <span className="text-foreground">Welcome, {user?.name}</span>
               <Button variant="outline" onClick={logout}>
                 Logout
               </Button>
@@ -106,36 +104,36 @@ const TransactionsPage = () => {
         </div>
       </nav>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Transactions</h1>
-          <p className="text-gray-600">Complete history of all your transactions and activities.</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Transactions</h1>
+          <p className="text-muted-foreground">Complete history of all your transactions and activities.</p>
         </div>
 
         {/* Filters */}
-        <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg mb-8">
-          <div className="flex items-center justify-between p-4">
-            <h3 className="text-sm font-medium text-gray-600">
+        <Card className="bg-neutral-900/60 border border-neutral-800 rounded-xl mb-8 shadow-sm">
+          <div className="flex items-center justify-between p-6">
+            <h3 className="text-sm font-medium text-muted-foreground">
               <Filter className="w-5 h-5 mr-2" />
               Filters & Search
             </h3>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 px-6 pb-6">
             {/* Search */}
             <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search transactions..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-10 rounded-md bg-neutral-900/60 border border-neutral-800 text-neutral-100 placeholder-neutral-500"
               />
             </div>
 
             {/* Type Filter */}
             <Select value={filterType} onValueChange={setFilterType}>
-              <SelectTrigger>
+              <SelectTrigger className="rounded-md bg-neutral-900/60 border border-neutral-800 text-neutral-100">
                 <SelectValue placeholder="Transaction Type" />
               </SelectTrigger>
               <SelectContent>
@@ -148,7 +146,7 @@ const TransactionsPage = () => {
 
             {/* Status Filter */}
             <Select value={filterStatus} onValueChange={setFilterStatus}>
-              <SelectTrigger>
+              <SelectTrigger className="rounded-md bg-neutral-900/60 border border-neutral-800 text-neutral-100">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
@@ -167,6 +165,7 @@ const TransactionsPage = () => {
                 setFilterType('all');
                 setFilterStatus('all');
               }}
+              className="rounded-md border-neutral-800 bg-neutral-900 text-neutral-100 hover:bg-neutral-800 hover:text-neutral-100"
             >
               Clear Filters
             </Button>
@@ -174,24 +173,24 @@ const TransactionsPage = () => {
         </Card>
 
         {/* Transaction Summary */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+          <Card className="bg-neutral-900/60 border border-neutral-800 rounded-xl p-6">
             <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <h3 className="text-sm font-medium text-gray-600">Total Transactions</h3>
-              <Wallet className="h-4 w-4 text-gray-600" />
+              <h3 className="text-sm font-medium text-muted-foreground">Total Transactions</h3>
+              <Wallet className="h-4 w-4 text-muted-foreground" />
             </div>
-            <div className="text-2xl font-bold text-gray-900">
+            <div className="text-2xl font-bold text-foreground">
               {filteredTransactions.length}
             </div>
-            <p className="text-xs text-gray-600 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               {filteredTransactions.length !== transactions.length && `Filtered from ${transactions.length}`}
             </p>
           </Card>
 
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+          <Card className="bg-neutral-900/60 border border-neutral-800 rounded-xl p-6">
             <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <h3 className="text-sm font-medium text-gray-600">Total Deposited</h3>
-              <TrendingUp className="h-4 w-4 text-gray-600" />
+              <h3 className="text-sm font-medium text-muted-foreground">Total Deposited</h3>
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </div>
             <div className="text-2xl font-bold text-green-600">
               ${filteredTransactions
@@ -199,13 +198,13 @@ const TransactionsPage = () => {
                 .reduce((sum, t) => sum + t.amount, 0)
                 .toLocaleString()}
             </div>
-            <p className="text-xs text-gray-600 mt-1">Completed deposits</p>
+            <p className="text-xs text-muted-foreground mt-1">Completed deposits</p>
           </Card>
 
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+          <Card className="bg-neutral-900/60 border border-neutral-800 rounded-xl p-6">
             <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <h3 className="text-sm font-medium text-gray-600">Total Withdrawn</h3>
-              <TrendingDown className="h-4 w-4 text-gray-600" />
+              <h3 className="text-sm font-medium text-muted-foreground">Total Withdrawn</h3>
+              <TrendingDown className="h-4 w-4 text-muted-foreground" />
             </div>
             <div className="text-2xl font-bold text-red-600">
               ${filteredTransactions
@@ -213,22 +212,22 @@ const TransactionsPage = () => {
                 .reduce((sum, t) => sum + t.amount, 0)
                 .toLocaleString()}
             </div>
-            <p className="text-xs text-gray-600 mt-1">Completed withdrawals</p>
+            <p className="text-xs text-muted-foreground mt-1">Completed withdrawals</p>
           </Card>
         </div>
 
         {/* Transactions List */}
-        <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-          <h3 className="text-2xl font-bold text-gray-900 mb-2">Transaction History</h3>
-          <div className="overflow-x-auto">
+        <Card className="bg-neutral-900/60 border border-neutral-800 rounded-xl">
+          <h3 className="text-2xl font-bold text-foreground mb-2 px-6 pt-6">Transaction History</h3>
+          <div className="overflow-x-auto rounded-lg m-6 mt-4">
             {loading ? (
               <div className="flex items-center justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
             ) : filteredTransactions.length > 0 ? (
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="bg-muted/50 border-b">
+                  <tr className="bg-neutral-800/50 border-b border-neutral-800">
                     <th className="py-4 px-6 font-medium text-sm text-muted-foreground text-left" style={{width: '40%'}}>Transaction</th>
                     <th className="py-4 px-6 font-medium text-sm text-muted-foreground text-left" style={{width: '25%'}}>Date</th>
                     <th className="py-4 px-6 font-medium text-sm text-muted-foreground text-right" style={{width: '20%'}}>Amount</th>
@@ -237,7 +236,7 @@ const TransactionsPage = () => {
                 </thead>
                 <tbody>
                   {filteredTransactions.map((transaction, index) => (
-                    <tr key={transaction._id || index} className="hover:bg-muted/30 transition-colors">
+                    <tr key={transaction._id || index} className="hover:bg-neutral-800/40 transition-colors">
                       {/* Transaction column */}
                       <td className="py-4 px-6 text-left">
                         <div className="flex items-center gap-4">
@@ -305,9 +304,9 @@ const TransactionsPage = () => {
               </table>
             ) : (
               <div className="text-center py-12">
-                <Wallet className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">No Transactions Found</h3>
-                <p className="text-gray-500 mb-6">
+                <Wallet className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-foreground mb-2">No Transactions Found</h3>
+                <p className="text-muted-foreground mb-6">
                   {searchTerm || filterType !== 'all' || filterStatus !== 'all' 
                     ? 'No transactions match your current filters.' 
                     : 'Start by making a deposit to see your transactions here.'

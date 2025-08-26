@@ -4,8 +4,8 @@ import { TrendingUp, TrendingDown, DollarSign, PieChart, BarChart3, Minus, Loade
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { useInvestment } from '../context/InvestmentContext';
 import { useAuth } from '../context/AuthContext';
-import Card from "@/components/ui/card";
-import Button from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/Badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useCrypto } from '../context/CryptoContext';
@@ -25,24 +25,16 @@ const PortfolioPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen bg-black text-neutral-100 flex items-center justify-center">
         <LoadingSpinner size="lg" />
       </div>
     );
   }
 
-  // Warning for zero amount or quantity
-  const zeroInvestments = investments.filter(inv => inv.amount === 0 || inv.quantity === 0);
-  if (zeroInvestments.length > 0) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="bg-yellow-100 text-yellow-800 p-6 rounded shadow">
-          <h2 className="text-lg font-bold mb-2">Data Warning</h2>
-          <p>Some investments have zero amount or quantity. Please contact support or check backend data integrity.</p>
-        </div>
-      </div>
-    );
-  }
+  // Active holdings: always filter to status==='active' to be safe (backend or mock mode)
+  const activeInvestments = (portfolio?.investments && Array.isArray(portfolio.investments))
+    ? portfolio.investments.filter(inv => inv.status === 'active')
+    : investments.filter(inv => inv.status === 'active');
 
   // Helper to get live price for a crypto
   const getLivePrice = (cryptoId: string, fallback: number) => {
@@ -61,28 +53,26 @@ const PortfolioPage: React.FC = () => {
   const isProfitable = portfolioData.totalProfitLoss >= 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-black text-neutral-100">
       {/* Navigation */}
-      <nav className="bg-white/80 backdrop-blur-md border-b border-gray-200">
+      <nav className="bg-neutral-900/60 backdrop-blur-md border-b border-neutral-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
-              <Link to="/dashboard" className="flex items-center text-gray-600 hover:text-gray-900">
+              <Link to="/dashboard" className="flex items-center text-muted-foreground hover:text-primary transition-colors">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Dashboard
               </Link>
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">CM</span>
-                </div>
-                <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                <img src="/logos/CMlogo.svg" alt="CryptoMax" className="w-12 h-12 rounded-lg" />
+                <span className="text-xl font-bold gradient-text">
                   CryptoMax
                 </span>
               </div>
             </div>
             
             <div className="flex items-center space-x-4">
-              <span className="text-gray-700">Welcome, {user?.name}</span>
+              <span className="text-foreground">Welcome, {user?.name}</span>
               <Button variant="outline" onClick={logout}>
                 Logout
               </Button>
@@ -91,84 +81,84 @@ const PortfolioPage: React.FC = () => {
         </div>
       </nav>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Portfolio</h1>
-          <p className="text-gray-600">Track your investment performance and manage your holdings.</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Portfolio</h1>
+          <p className="text-muted-foreground">Track your investment performance and manage your holdings.</p>
         </div>
 
         {/* Portfolio Summary */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+          <Card className="bg-neutral-900/60 border border-neutral-800 rounded-xl p-6">
             <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <div className="text-sm font-medium text-gray-600">Total Invested</div>
-              <DollarSign className="h-4 w-4 text-gray-600" />
+              <div className="text-sm font-medium text-muted-foreground">Total Invested</div>
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
             </div>
-            <div className="text-2xl font-bold text-gray-900">
+            <div className="text-2xl font-bold text-foreground">
               ${portfolioData.totalInvested.toLocaleString()}
             </div>
-            <p className="text-xs text-gray-600 mt-1">Initial investment</p>
+            <p className="text-xs text-muted-foreground mt-1">Initial investment</p>
           </Card>
 
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+          <Card className="bg-neutral-900/60 border border-neutral-800 rounded-xl p-6">
             <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <div className="text-sm font-medium text-gray-600">Current Value</div>
-              <PieChart className="h-4 w-4 text-gray-600" />
+              <div className="text-sm font-medium text-muted-foreground">Current Value</div>
+              <PieChart className="h-4 w-4 text-muted-foreground" />
             </div>
-            <div className="text-2xl font-bold text-gray-900">
+            <div className="text-2xl font-bold text-foreground">
               ${portfolioData.totalCurrentValue.toLocaleString()}
             </div>
-            <p className="text-xs text-gray-600 mt-1">Subscription value</p>
+            <p className="text-xs text-muted-foreground mt-1">Subscription value</p>
           </Card>
 
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+          <Card className="bg-neutral-900/60 border border-neutral-800 rounded-xl p-6">
             <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <div className="text-sm font-medium text-gray-600">Total P&L</div>
-              <BarChart3 className="h-4 w-4 text-gray-600" />
+              <div className="text-sm font-medium text-muted-foreground">Total P&L</div>
+              <BarChart3 className="h-4 w-4 text-muted-foreground" />
             </div>
             <div className={`text-2xl font-bold ${portfolioData.totalProfitLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>{portfolioData.totalProfitLoss >= 0 ? '+' : ''}${portfolioData.totalProfitLoss.toLocaleString()}</div>
             <div className={`flex items-center text-sm mt-1 ${portfolioData.totalProfitLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>{portfolioData.totalProfitLoss >= 0 ? <TrendingUp className="w-3 h-3 mr-1" /> : <TrendingDown className="w-3 h-3 mr-1" />}{portfolioData.totalProfitLossPercentage.toFixed(2)}%</div>
           </Card>
 
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+          <Card className="bg-neutral-900/60 border border-neutral-800 rounded-xl p-6">
             <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <div className="text-sm font-medium text-gray-600">Holdings</div>
-              <PieChart className="h-4 w-4 text-gray-600" />
+              <div className="text-sm font-medium text-muted-foreground">Holdings</div>
+              <PieChart className="h-4 w-4 text-muted-foreground" />
             </div>
-            <div className="text-2xl font-bold text-blue-600">
-              {investments?.length || 0}
+            <div className="text-2xl font-bold text-primary">
+              {activeInvestments?.length || 0}
             </div>
-            <p className="text-xs text-gray-600 mt-1">Active positions</p>
+            <p className="text-xs text-muted-foreground mt-1">Active positions</p>
           </Card>
         </div>
 
         {/* Holdings */}
-        <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-          <div className="flex items-center justify-between">
-            <div className="text-sm font-medium text-gray-900">
+        <Card className="bg-neutral-900/60 border border-neutral-800 rounded-xl">
+          <div className="flex items-center justify-between px-6 pt-6">
+            <div className="text-sm font-medium text-foreground">
               Your Holdings
             </div>
             <Link to="/crypto">
-              <Button variant="outline" size="sm">Invest More</Button>
+              <Button variant="outline" size="sm" className="border-neutral-800 bg-neutral-900 text-neutral-100 hover:bg-neutral-800">Invest More</Button>
             </Link>
           </div>
-          <div className="space-y-4">
+          <div className="space-y-4 p-6 pt-4">
             {loading ? (
               <div className="flex items-center justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
             ) : (
               <>
-                {investments && investments.length > 0 ? (
-                  investments.map((investment) => {
+                {activeInvestments && activeInvestments.length > 0 ? (
+                  activeInvestments.map((investment) => {
                     // Use backend-calculated values for subscription investments
                     const currentValue = investment.currentValue || investment.amount;
                     const profitLoss = investment.profitLoss || 0;
                     const profitLossPercentage = investment.profitLossPercentage || 0;
                     
                     return (
-                      <div key={investment._id} className="flex items-center justify-between p-4 rounded-lg bg-gray-50/50">
+                      <div key={investment._id} className="flex items-center justify-between p-4 rounded-lg bg-neutral-900/60 border border-neutral-800 hover:bg-neutral-800/60 transition-colors">
                         <div className="flex items-center space-x-4">
                           {investment.crypto.image ? (
                             <img
@@ -188,28 +178,28 @@ const PortfolioPage: React.FC = () => {
                             </div>
                           )}
                           <div>
-                            <div className="font-semibold text-gray-900">{investment.crypto.name}</div>
-                            <div className="text-sm text-gray-500">
+                            <div className="font-semibold text-foreground">{investment.crypto.name}</div>
+                            <div className="text-sm text-muted-foreground">
                               {investment.investmentPlan?.name || 'Subscription Plan'}
                             </div>
                           </div>
                         </div>
                         
                         <div className="text-center">
-                          <div className="text-sm text-gray-500">Invested</div>
-                          <div className="font-semibold text-gray-900">${investment.amount.toLocaleString()}</div>
+                          <div className="text-sm text-muted-foreground">Invested</div>
+                          <div className="font-semibold text-foreground">${investment.amount.toLocaleString()}</div>
                         </div>
                         
                         <div className="text-center">
-                          <div className="text-sm text-gray-500">Current Value</div>
+                          <div className="text-sm text-muted-foreground">Current Value</div>
                           <div className="font-semibold text-green-600">${currentValue.toLocaleString()}</div>
-                          <div className="text-xs text-gray-400">
+                          <div className="text-xs text-muted-foreground">
                             {investment.dailyReturnPercentage}% daily return
                           </div>
                         </div>
                         
                         <div className="text-center">
-                          <div className="text-sm text-gray-500">P&L</div>
+                          <div className="text-sm text-muted-foreground">P&L</div>
                           <div className={`font-semibold ${profitLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                             {profitLoss >= 0 ? '+' : ''}${profitLoss.toLocaleString()}
                           </div>
@@ -221,7 +211,7 @@ const PortfolioPage: React.FC = () => {
                         </div>
                         
                         <div className="text-center">
-                          <div className="text-sm text-gray-500 mb-2">Status</div>
+                          <div className="text-sm text-muted-foreground mb-2">Status</div>
                           <Badge className={`mb-2 ${
                             investment.status === 'active' ? 'bg-green-100 text-green-700' : 
                             investment.status === 'completed' ? 'bg-blue-100 text-blue-700' : 
@@ -229,7 +219,7 @@ const PortfolioPage: React.FC = () => {
                           }`}>
                             {investment.status}
                           </Badge>
-                          <div className="text-xs text-gray-500">
+                          <div className="text-xs text-muted-foreground">
                             {investment.status === 'active' ? 'Earning daily returns' : 
                              investment.status === 'completed' ? 'Maturity reached' : 
                              'Investment ended'}
@@ -239,7 +229,7 @@ const PortfolioPage: React.FC = () => {
                     );
                   })
                 ) : (
-                  <div className="text-center py-12 text-gray-500">
+                  <div className="text-center py-12 text-muted-foreground">
                     <p className="mb-4">No investments yet. Start building your portfolio!</p>
                     <Link to="/crypto">
                       <Button className="bg-gradient-to-r from-blue-600 to-indigo-600">

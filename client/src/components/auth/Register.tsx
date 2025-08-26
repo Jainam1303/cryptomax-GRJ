@@ -5,9 +5,9 @@ import { User, Mail, Lock, AlertCircle } from 'lucide-react';
 import { register } from '../../redux/thunks/authThunks';
 import { RootState, AppDispatch } from '../../redux/store';
 import { isValidEmail, isStrongPassword } from '../../utils/validators';
-import Card from '../ui/card';
+import { Card } from '../ui/card';
 import { Input } from '../ui/Input';
-import Button from '../ui/button';
+import { Button } from '../ui/button';
 import { Alert, AlertTitle, AlertDescription } from '../ui/Alert';
 
 const Register: React.FC = () => {
@@ -249,11 +249,11 @@ const Register: React.FC = () => {
           
           <Button
             type="submit"
-            variant="primary"
-            fullWidth
-            isLoading={loading}
+            variant="default"
+            className="w-full"
+            disabled={loading}
           >
-            Create account
+            {loading ? 'Creating account...' : 'Create account'}
           </Button>
         </form>
       </Card>

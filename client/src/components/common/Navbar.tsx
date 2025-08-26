@@ -1,19 +1,20 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { Wallet, LogOut, Menu, X } from 'lucide-react';
 import { RootState } from '../../redux/store';
-import { logout } from '../../redux/slices/authSlice';
 import { useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
 
 const Navbar: React.FC = () => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { logout } = useAuth();
 
   const handleLogout = () => {
-    dispatch(logout());
+    // Use centralized AuthContext logout to clear storages, axios, and sync tabs
+    logout();
     navigate('/login');
   };
 
@@ -32,10 +33,8 @@ const Navbar: React.FC = () => {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">C</span>
-              </div>
-              <span className="text-xl font-bold text-white">CryptoMax</span>
+              <img src="/logos/CMlogo.svg" alt="CryptoMax" className="w-12 h-12 rounded-lg" />
+              <span className="text-xl font-bold gradient-text">CryptoMax</span>
             </Link>
           </div>
 

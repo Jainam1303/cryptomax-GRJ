@@ -5,7 +5,7 @@ import { deposit } from '../../redux/thunks/walletThunks';
 import { RootState, AppDispatch } from '../../redux/store';
 import { isValidAmount } from '../../utils/validators';
 import { Input } from '../ui/Input';
-import Button from '../ui/button';
+import { Button } from '../ui/button';
 import { Alert } from '../ui/Alert';
 import api from '../../services/api';
 
@@ -14,7 +14,7 @@ const DepositForm: React.FC = () => {
   const { loading, error } = useSelector((state: RootState) => state.wallet);
   
   const [amount, setAmount] = useState<string>('');
-  const [paymentMethod, setPaymentMethod] = useState<string>('credit_card');
+  const [paymentMethod, setPaymentMethod] = useState<string>('usdt_trc20');
   const [formError, setFormError] = useState<string>('');
   const [success, setSuccess] = useState<boolean>(false);
   const [walletInfo, setWalletInfo] = useState<{ address: string; qrImageUrl: string } | null>(null);

@@ -21,75 +21,75 @@ const investmentPlans = [
     name: "Starter Plan",
     minAmount: 100,
     maxAmount: 500,
-    dailyReturnPercentage: 0.5,
-    duration: 30,
+    dailyReturnPercentage: 1.0,
+    duration: 7,
     description: "Perfect for beginners. Start with a small investment and earn daily returns.",
     features: [
-      "Daily returns of 0.5%",
-      "30-day investment period",
+      "Daily returns of 1.0%",
+      "7-day investment period",
       "Minimum $100 investment",
       "Maximum $500 investment",
-      "Total return: 15%"
+      "Total return: 7%"
     ]
   },
   {
     name: "Growth Plan",
     minAmount: 500,
     maxAmount: 2000,
-    dailyReturnPercentage: 0.8,
-    duration: 60,
+    dailyReturnPercentage: 1.5,
+    duration: 14,
     description: "Balanced growth with moderate risk and higher returns.",
     features: [
-      "Daily returns of 0.8%",
-      "60-day investment period",
+      "Daily returns of 1.5%",
+      "14-day investment period",
       "Minimum $500 investment",
       "Maximum $2,000 investment",
-      "Total return: 48%"
+      "Total return: 21%"
     ]
   },
   {
     name: "Premium Plan",
     minAmount: 2000,
     maxAmount: 5000,
-    dailyReturnPercentage: 1.2,
-    duration: 90,
-    description: "Premium investment with higher daily returns and longer duration.",
+    dailyReturnPercentage: 2.0,
+    duration: 21,
+    description: "Premium investment with higher daily returns and moderate duration.",
     features: [
-      "Daily returns of 1.2%",
-      "90-day investment period",
+      "Daily returns of 2.0%",
+      "21-day investment period",
       "Minimum $2,000 investment",
       "Maximum $5,000 investment",
-      "Total return: 108%"
+      "Total return: 42%"
     ]
   },
   {
     name: "Elite Plan",
     minAmount: 5000,
     maxAmount: 10000,
-    dailyReturnPercentage: 1.5,
-    duration: 120,
-    description: "Elite investment plan for serious investors with maximum returns.",
+    dailyReturnPercentage: 2.5,
+    duration: 28,
+    description: "Elite investment plan for serious investors with strong returns.",
     features: [
-      "Daily returns of 1.5%",
-      "120-day investment period",
+      "Daily returns of 2.5%",
+      "28-day investment period",
       "Minimum $5,000 investment",
       "Maximum $10,000 investment",
-      "Total return: 180%"
+      "Total return: 70%"
     ]
   },
   {
     name: "Ultimate Plan",
     minAmount: 10000,
     maxAmount: 10000,
-    dailyReturnPercentage: 2.0,
-    duration: 150,
-    description: "Ultimate investment plan with the highest returns for VIP investors.",
+    dailyReturnPercentage: 3.0,
+    duration: 35,
+    description: "Ultimate plan with the highest daily returns for VIP investors.",
     features: [
-      "Daily returns of 2.0%",
-      "150-day investment period",
+      "Daily returns of 3.0%",
+      "35-day investment period",
       "Fixed $10,000 investment",
       "Maximum returns available",
-      "Total return: 300%"
+      "Total return: 105%"
     ]
   }
 ];
@@ -132,11 +132,11 @@ const seedInvestmentPlans = async () => {
     
     console.log(`\n✅ Successfully created ${totalPlans} investment plans for ${cryptos.length} cryptocurrencies`);
     console.log('\nInvestment Plans Summary:');
-    console.log('- Starter Plan: $100-$500, 0.5% daily, 30 days, 15% total');
-    console.log('- Growth Plan: $500-$2,000, 0.8% daily, 60 days, 48% total');
-    console.log('- Premium Plan: $2,000-$5,000, 1.2% daily, 90 days, 108% total');
-    console.log('- Elite Plan: $5,000-$10,000, 1.5% daily, 120 days, 180% total');
-    console.log('- Ultimate Plan: $10,000, 2.0% daily, 150 days, 300% total');
+    console.log('- Starter Plan: $100-$500, 1.0% daily, 7 days, 7% total');
+    console.log('- Growth Plan: $500-$2,000, 1.5% daily, 14 days, 21% total');
+    console.log('- Premium Plan: $2,000-$5,000, 2.0% daily, 21 days, 42% total');
+    console.log('- Elite Plan: $5,000-$10,000, 2.5% daily, 28 days, 70% total');
+    console.log('- Ultimate Plan: $10,000, 3.0% daily, 35 days, 105% total');
     
     process.exit(0);
   } catch (err) {

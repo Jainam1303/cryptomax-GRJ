@@ -1,7 +1,7 @@
 import React from 'react';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import { formatCurrency, formatPercentage } from '../../utils/formatters';
-import Card from '../ui/card';
+import { Card } from '../ui/card';
 import { Crypto } from '../../types';
 
 interface CryptoCardProps {

@@ -3,6 +3,7 @@ import { useToast } from '../hooks/use-toast';
 import api, { setAuthToken } from '../services/api';
 import { useDispatch } from 'react-redux';
 import { loginSuccess, userLoaded, logout as reduxLogout } from '../redux/slices/authSlice';
+import { getReferralCode } from '../lib/referral';
 
 interface User {
   _id: string;
@@ -11,6 +12,7 @@ interface User {
   role: string;
   isVerified: boolean;
   createdAt: string;
+  referralCode?: string;
 }
 
 interface AuthContextType {
@@ -43,15 +45,29 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const { toast } = useToast();
   const dispatch = useDispatch();
 
-  // Load user on component mount
+  // Load user on component mount and sync across tabs
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    // Check both localStorage and sessionStorage for a token
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     setAuthToken(token);
     if (token) {
       loadUser();
     } else {
       setLoading(false);
     }
+
+    // Cross-tab/session sync: if token removed elsewhere, reflect here
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'token' && !e.newValue) {
+        // token cleared in another tab
+        setAuthToken(null);
+        setUser(null);
+        setIsAuthenticated(false);
+        dispatch(reduxLogout());
+      }
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
   }, []);
 
   const loadUser = async () => {
@@ -104,7 +120,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const register = async (name: string, email: string, password: string) => {
     try {
       setLoading(true);
-      const response = await api.post('/api/auth/register', { name, email, password });
+      const referralCode = getReferralCode();
+      const payload: any = { name, email, password };
+      if (referralCode) payload.referralCode = referralCode;
+      const response = await api.post('/api/auth/register', payload);
       const { token, user } = response.data;
       localStorage.setItem('token', token);
       setAuthToken(token);
@@ -131,7 +150,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
+    // Clear tokens from all storages and flags
+    try { localStorage.removeItem('token'); } catch {}
+    try { sessionStorage.removeItem('token'); } catch {}
+    try { localStorage.removeItem('rememberMe'); } catch {}
     setAuthToken(null);
     setUser(null);
     setIsAuthenticated(false);
@@ -141,6 +163,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       title: "Logged Out",
       description: "You have been successfully logged out.",
     });
+    // Hard redirect ensures all components unmount and protected routes re-evaluate
+    if (window.location.pathname !== '/login') {
+      window.location.href = '/login';
+    }
   };
 
   const value: AuthContextType = {

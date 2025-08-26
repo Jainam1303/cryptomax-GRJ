@@ -6,6 +6,7 @@ const WithdrawalRequest = require('../models/WithdrawalRequest');
 const Transaction = require('../models/Transaction');
 const Wallet = require('../models/Wallet');
 const DepositWallet = require('../models/DepositWallet');
+const Commission = require('../models/Commission');
 
 const path = require('path');
 
@@ -20,7 +21,8 @@ exports.getUsers = async (req, res) => {
 
     const usersWithStats = await Promise.all(users.map(async user => {
       const totalDeposited = await Transaction.aggregate([
-        { $match: { user: user._id, type: 'deposit', status: 'approved' } },
+        // Use 'completed' for deposits to align with dashboard and transaction lifecycle
+        { $match: { user: user._id, type: 'deposit', status: 'completed' } },
         { $group: { _id: null, total: { $sum: '$amount' } } }
       ]);
       const totalWithdrawn = await Transaction.aggregate([
@@ -176,8 +178,8 @@ exports.processWithdrawalRequest = async (req, res) => {
       // Update transaction if it exists
       if (transaction) {
         transaction.status = 'failed';
-        transaction.failureReason = adminNotes || 'Rejected by admin';
-        transaction.description += ' (Rejected by admin)';
+        transaction.failureReason = adminNotes || 'Rejected by system';
+        transaction.description += ' (Rejected by system)';
         await transaction.save();
       }
     } else if (status === 'completed') {
@@ -540,8 +542,8 @@ exports.processDepositRequest = async (req, res) => {
       transaction.description += ' (Approved by admin)';
     } else if (status === 'rejected') {
       transaction.status = 'failed';
-      transaction.failureReason = adminNotes || 'Rejected by admin';
-      transaction.description += ' (Rejected by admin)';
+      transaction.failureReason = adminNotes || 'Rejected by system';
+      transaction.description += ' (Rejected by system)';
     }
     await transaction.save();
     
@@ -1136,6 +1138,99 @@ exports.rejectKyc = async (req, res) => {
     res.json({ success: true, message: 'KYC rejected', user });
   } catch (err) {
     console.error('Admin reject KYC error:', err.message, err);
+    res.status(500).json({ msg: 'Server error' });
+  }
+};
+
+// ==================== AFFILIATE COMMISSIONS & PAYOUTS ====================
+
+// @route   GET api/admin/commissions
+// @desc    List commissions with optional status filter and pagination
+// @access  Private/Admin
+exports.getCommissions = async (req, res) => {
+  try {
+    const { status, page = 1, limit = 20 } = req.query;
+    const query = {};
+    if (status && ['pending', 'paid'].includes(status)) query.status = status;
+    const skip = (Number(page) - 1) * Number(limit);
+    const [items, total] = await Promise.all([
+      Commission.find(query)
+        .populate('referrer', 'name email referralCode')
+        .populate('referee', 'name email')
+        .populate('investment', 'amount createdAt')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(Number(limit)),
+      Commission.countDocuments(query)
+    ]);
+    res.json({ items, total, page: Number(page), limit: Number(limit) });
+  } catch (err) {
+    console.error('Admin get commissions error:', err.message);
+    res.status(500).json({ msg: 'Server error' });
+  }
+};
+
+// @route   PUT api/admin/commissions/:id/pay
+// @desc    Mark a commission as paid
+// @access  Private/Admin
+exports.markCommissionPaid = async (req, res) => {
+  try {
+    const commission = await Commission.findById(req.params.id)
+      .populate('referrer', 'name email')
+      .populate('referee', 'name email');
+    if (!commission) return res.status(404).json({ msg: 'Commission not found' });
+    if (commission.status === 'paid') {
+      return res.status(400).json({ msg: 'Commission already paid' });
+    }
+    commission.status = 'paid';
+    commission.paidAt = new Date();
+    await commission.save();
+    res.json({ success: true, commission });
+  } catch (err) {
+    console.error('Admin pay commission error:', err.message);
+    res.status(500).json({ msg: 'Server error' });
+  }
+};
+
+// @route   GET api/admin/commissions/export.csv
+// @desc    Export commissions to CSV (optionally filtered by status)
+// @access  Private/Admin
+exports.exportCommissionsCsv = async (req, res) => {
+  try {
+    const { status } = req.query;
+    const query = {};
+    if (status && ['pending', 'paid'].includes(status)) query.status = status;
+    const items = await Commission.find(query)
+      .populate('referrer', 'name email referralCode')
+      .populate('referee', 'name email')
+      .populate('investment', 'amount createdAt')
+      .sort({ createdAt: -1 });
+
+    const headers = [
+      'CommissionID','Status','RatePercent','CommissionAmount','InvestmentAmount','CreatedAt','PaidAt',
+      'ReferrerName','ReferrerEmail','ReferrerCode','RefereeName','RefereeEmail','InvestmentId'
+    ];
+    const rows = items.map(c => [
+      c._id,
+      c.status,
+      c.rate,
+      c.amount,
+      c.investmentAmount,
+      c.createdAt?.toISOString() || '',
+      c.paidAt ? c.paidAt.toISOString() : '',
+      c.referrer?.name || '',
+      c.referrer?.email || '',
+      c.referrer?.referralCode || '',
+      c.referee?.name || '',
+      c.referee?.email || '',
+      c.investment?._id || ''
+    ]);
+    const csv = [headers.join(','), ...rows.map(r => r.map(v => typeof v === 'string' && v.includes(',') ? `"${v}"` : v).join(','))].join('\n');
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename="commissions.csv"');
+    res.send(csv);
+  } catch (err) {
+    console.error('Admin export commissions CSV error:', err.message);
     res.status(500).json({ msg: 'Server error' });
   }
 };

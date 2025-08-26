@@ -1,0 +1,5 @@
+.sidebar {
+  width: 240px;
+  background-color: var(--color-surface-2);
+  padding: 1rem;
+}

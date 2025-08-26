@@ -6,7 +6,7 @@ import { formatCurrency } from '../../utils/formatters';
 import { isValidAmount } from '../../utils/validators';
 import { Crypto } from '../../types';
 import { Input } from '../ui/Input';
-import Button from '../ui/button';
+import { Button } from '../ui/button';
 import { Alert, AlertDescription } from '../ui/Alert';
 
 interface InvestmentFormProps {
@@ -86,27 +86,27 @@ const InvestmentForm: React.FC<InvestmentFormProps> = ({ crypto, onSuccess }) =>
             required
           />
           
-          <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+          <div className="mt-2 text-sm text-neutral-400">
             Available balance: {formatCurrency(wallet?.balance || 0)}
           </div>
         </div>
         
-        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mb-6">
+        <div className="bg-neutral-900/60 border border-neutral-800 rounded-lg p-4 mb-6">
           <div className="flex justify-between mb-2">
-            <span className="text-gray-600 dark:text-gray-400">Current Price:</span>
-            <span className="font-medium text-gray-900 dark:text-white">{formatCurrency(crypto.currentPrice)}</span>
+            <span className="text-neutral-400">Current Price:</span>
+            <span className="font-medium text-neutral-100">{formatCurrency(crypto.currentPrice)}</span>
           </div>
           
           <div className="flex justify-between mb-2">
-            <span className="text-gray-600 dark:text-gray-400">Estimated Quantity:</span>
-            <span className="font-medium text-gray-900 dark:text-white">
+            <span className="text-neutral-400">Estimated Quantity:</span>
+            <span className="font-medium text-neutral-100">
               {estimatedQuantity.toFixed(8)} {crypto.symbol}
             </span>
           </div>
           
           <div className="flex justify-between">
-            <span className="text-gray-600 dark:text-gray-400">Total Investment:</span>
-            <span className="font-medium text-gray-900 dark:text-white">
+            <span className="text-neutral-400">Total Investment:</span>
+            <span className="font-medium text-neutral-100">
               {formatCurrency(parseFloat(amount) || 0)}
             </span>
           </div>
@@ -115,11 +115,10 @@ const InvestmentForm: React.FC<InvestmentFormProps> = ({ crypto, onSuccess }) =>
         <div className="flex justify-end">
           <Button
             type="submit"
-            variant="primary"
-            isLoading={loading}
-            disabled={!amount || !isValidAmount(amount) || parseFloat(amount) <= 0}
+            variant="default"
+            disabled={loading || !amount || !isValidAmount(amount) || parseFloat(amount) <= 0}
           >
-            Confirm Investment
+            {loading ? 'Confirming...' : 'Confirm Investment'}
           </Button>
         </div>
       </form>

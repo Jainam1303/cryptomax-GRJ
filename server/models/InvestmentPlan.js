@@ -30,7 +30,7 @@ const InvestmentPlanSchema = new mongoose.Schema({
   duration: {
     type: Number,
     required: true,
-    min: 30, // Minimum 30 days
+    min: 7, // Minimum 7 days
     max: 365 // Maximum 365 days
   },
   totalReturnPercentage: {

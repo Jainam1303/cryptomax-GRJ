@@ -7,6 +7,8 @@ import AdminDeposits from '../components/admin/AdminDeposits';
 import AdminCryptoSettings from '../components/admin/AdminCryptoSettings';
 import SystemSettings from '../components/admin/SystemSettings';
 import SubscriptionInvestments from '../components/admin/SubscriptionInvestments';
+import KycReviews from '../components/admin/KycReviews';
+import Commissions from '../components/admin/Commissions';
 import Sidebar from '../components/common/Sidebar';
 import Navbar from '../components/common/Navbar';
 
@@ -27,6 +29,8 @@ const AdminPage = () => {
             <Route path="/" element={<AdminDashboard />} />
             <Route path="/users" element={<UserManagement />} />
             <Route path="/subscription-investments" element={<SubscriptionInvestments />} />
+            <Route path="/commissions" element={<Commissions />} />
+            <Route path="/kyc" element={<KycReviews />} />
             <Route path="/deposits" element={<AdminDeposits />} />
             <Route path="/withdrawals" element={<WithdrawalRequests />} />
             <Route path="/crypto-settings" element={<AdminCryptoSettings />} />

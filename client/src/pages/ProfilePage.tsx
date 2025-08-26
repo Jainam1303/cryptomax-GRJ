@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { updateProfile } from '../redux/thunks/authThunks';
-import Card from '../components/ui/card';
-import Button from '../components/ui/button';
+import { Card } from '../components/ui/card';
+import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/Input';
 import { Alert } from '../components/ui/Alert';
 import { Badge } from '../components/ui/Badge';
@@ -25,6 +25,8 @@ import {
 } from 'lucide-react';
 import { RootState, AppDispatch } from '../redux/store';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
+import api from '../services/api';
+import UserAgreementText from '../content/UserAgreementText';
 
 /**
  * SECURITY IMPLEMENTATION - PRODUCTION READY
@@ -205,7 +207,7 @@ interface KYCData {
 
 const ProfilePage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { user, loading, error } = useSelector((state: RootState) => state.auth);
+  const { user, loading, error, isAuthenticated } = useSelector((state: RootState) => state.auth);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   
@@ -217,6 +219,17 @@ const ProfilePage: React.FC = () => {
   });
   const [kycModalOpen, setKycModalOpen] = useState(false);
   const [userAgreementChecked, setUserAgreementChecked] = useState(false);
+  // Referral state
+  const [referralStats, setReferralStats] = useState<{
+    referralCode: string | null;
+    totalReferrals: number;
+    referredUsers: { id: string; name: string; email: string; createdAt: string }[];
+    hasReferrer: boolean;
+  } | null>(null);
+  const [referralCodeInput, setReferralCodeInput] = useState('');
+  const [referralLoading, setReferralLoading] = useState(false);
+  const [referralMessage, setReferralMessage] = useState<string>('');
+  const [referralError, setReferralError] = useState<string>('');
   
   // Handle URL parameter for tab
   useEffect(() => {
@@ -272,6 +285,78 @@ const ProfilePage: React.FC = () => {
       }));
     }
   }, [user]);
+
+  // Fetch referral stats
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const { data } = await api.get('/api/referrals/stats');
+        setReferralStats(data);
+      } catch (e: any) {
+        // Non-blocking; ignore if unauthorized
+      }
+    };
+    if (isAuthenticated) fetchStats();
+  }, [isAuthenticated]);
+
+  // Fetch current KYC status/details from server
+  useEffect(() => {
+    const fetchKyc = async () => {
+      try {
+        const { data } = await api.get('/api/auth/kyc/status');
+        if (data?.kyc) {
+          setKycData(prev => ({
+            ...prev,
+            ...data.kyc.data,
+            status: data.kyc.status || 'not_submitted',
+            submittedAt: data.kyc?.data?.submittedAt || undefined,
+            reviewedAt: data.kyc?.reviewedAt || undefined,
+            adminNotes: data.kyc?.adminNotes || undefined,
+          }));
+        } else if (data?.status) {
+          setKycData(prev => ({ ...prev, status: data.status }));
+        }
+      } catch (e) {
+        // non-blocking
+      }
+    };
+    if (isAuthenticated) fetchKyc();
+  }, [isAuthenticated]);
+
+  const copyReferralCode = async () => {
+    const code = referralStats?.referralCode || user?.referralCode;
+    if (!code) return;
+    try {
+      await navigator.clipboard.writeText(code);
+      setReferralMessage('Referral code copied to clipboard');
+      setTimeout(() => setReferralMessage(''), 2000);
+    } catch {}
+  };
+
+  const handleLinkReferral = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setReferralError('');
+    setReferralMessage('');
+    const code = SecurityUtils.sanitizeInput(referralCodeInput).trim();
+    if (!code) {
+      setReferralError('Please enter a referral code');
+      return;
+    }
+    try {
+      setReferralLoading(true);
+      await api.post('/api/referrals/link', { code });
+      setReferralMessage('Referral linked successfully');
+      setReferralCodeInput('');
+      // refresh stats
+      const { data } = await api.get('/api/referrals/stats');
+      setReferralStats(data);
+    } catch (err: any) {
+      const msg = err?.response?.data?.msg || 'Failed to link referral code';
+      setReferralError(msg);
+    } finally {
+      setReferralLoading(false);
+    }
+  };
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -512,29 +597,44 @@ const ProfilePage: React.FC = () => {
     if (validateKyc()) {
       setKycLoading(true);
       try {
-        // Add CSRF token to KYC data
-        const kycSubmissionData = {
-          ...kycData,
+        const payload = {
+          fullName: kycData.fullName,
+          dateOfBirth: kycData.dateOfBirth,
+          nationality: kycData.nationality,
+          address: kycData.address,
+          city: kycData.city,
+          country: kycData.country,
+          postalCode: kycData.postalCode,
+          phoneNumber: kycData.phoneNumber,
+          idType: kycData.idType,
+          idNumber: kycData.idNumber,
+          idFrontImage: kycData.idFrontImage,
+          idBackImage: kycData.idBackImage,
+          selfieImage: kycData.selfieImage,
           csrfToken: SecurityUtils.generateCSRFToken(),
-          submittedAt: new Date().toISOString()
         };
-        
-        // Simulate KYC submission with security measures
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        setKycData({
-          ...kycData,
-          status: 'pending',
-          submittedAt: new Date().toISOString()
-        });
-        
+
+        const { data } = await api.post('/api/auth/kyc/submit', payload);
+
+        // Update from server response
+        const k = data?.kyc;
+        setKycData(prev => ({
+          ...prev,
+          ...k?.data,
+          status: k?.status || 'pending',
+          submittedAt: k?.data?.submittedAt || new Date().toISOString(),
+          reviewedAt: k?.reviewedAt || undefined,
+          adminNotes: k?.adminNotes || undefined,
+        }));
+
         setSuccess('KYC information submitted successfully! It will be reviewed within 24-48 hours.');
         setKycModalOpen(false);
-      } catch (error) {
+      } catch (error: any) {
         console.error('KYC submission error:', error);
+        const msg = error?.response?.data?.msg || 'An error occurred while submitting KYC. Please try again.';
         setKycErrors({
           ...kycErrors,
-          fullName: 'An error occurred while submitting KYC. Please try again.'
+          fullName: msg,
         });
       } finally {
         setKycLoading(false);
@@ -580,98 +680,98 @@ const ProfilePage: React.FC = () => {
   };
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-black text-neutral-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Profile Settings</h1>
-          <p className="text-gray-600">Manage your account, security, and KYC verification.</p>
+          <h1 className="text-3xl font-bold text-neutral-100 mb-2">Profile Settings</h1>
+          <p className="text-neutral-400">Manage your account, security, and KYC verification.</p>
         </div>
         
         {/* Tab Navigation */}
-        <div className="flex space-x-1 bg-white rounded-lg p-1 mb-8 shadow-sm">
+        <div className="flex space-x-1 bg-neutral-900/60 backdrop-blur-md border border-neutral-800 rounded-lg p-1 mb-8 shadow-sm">
           <button
             onClick={() => {
               setActiveTab('profile');
               navigate(`/profile`);
             }}
-            className={`flex-1 py-3 px-4 rounded-md text-sm font-medium transition-colors ${
+            className={`flex-1 inline-flex items-center justify-center gap-2 py-3 px-4 rounded-md text-sm font-medium transition-colors ${
               activeTab === 'profile'
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                ? 'bg-neutral-800 text-neutral-100 shadow-sm'
+                : 'text-muted-foreground hover:text-foreground hover:bg-neutral-800/60'
             }`}
           >
-            <User className="w-4 h-4 mr-2" />
-            Profile
+            <User className="w-4 h-4 shrink-0" />
+            <span className="leading-none">Profile</span>
           </button>
           <button
             onClick={() => {
               setActiveTab('security');
               navigate(`/profile?tab=security`);
             }}
-            className={`flex-1 py-3 px-4 rounded-md text-sm font-medium transition-colors ${
+            className={`flex-1 inline-flex items-center justify-center gap-2 py-3 px-4 rounded-md text-sm font-medium transition-colors ${
               activeTab === 'security'
-                ? 'bg-blue-500 text-white shadow-sm'
-                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                ? 'bg-neutral-800 text-neutral-100 shadow-sm'
+                : 'text-muted-foreground hover:text-foreground hover:bg-neutral-800/60'
             }`}
           >
-            <Lock className="w-4 h-4 inline mr-2" />
-            Security
+            <Lock className="w-4 h-4 shrink-0" />
+            <span className="leading-none">Security</span>
           </button>
             <button 
             onClick={() => {
               setActiveTab('kyc');
               navigate(`/profile?tab=kyc`);
             }}
-            className={`flex-1 py-3 px-4 rounded-md text-sm font-medium transition-colors ${
+            className={`flex-1 inline-flex items-center justify-center gap-2 py-3 px-4 rounded-md text-sm font-medium transition-colors ${
               activeTab === 'kyc'
-                ? 'bg-blue-500 text-white shadow-sm'
-                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                ? 'bg-neutral-800 text-neutral-100 shadow-sm'
+                : 'text-muted-foreground hover:text-foreground hover:bg-neutral-800/60'
             }`}
           >
-            <Shield className="w-4 h-4 inline mr-2" />
-            KYC Verification
+            <Shield className="w-4 h-4 shrink-0" />
+            <span className="leading-none">KYC Verification</span>
             </button>
           </div>
           
         {/* Success/Error Messages */}
             {success && (
-          <Alert className="mb-6 bg-green-50 border-green-200 text-green-800">
+          <Alert className="relative z-0 mb-6 bg-emerald-900/20 border border-emerald-700 text-emerald-300">
             <CheckCircle className="w-4 h-4" />
                 {success}
               </Alert>
             )}
             
             {error && (
-          <Alert className="mb-6 bg-red-50 border-red-200 text-red-800">
+          <Alert className="mb-6 bg-red-900/20 border border-red-700 text-red-300">
             <XCircle className="w-4 h-4" />
                 {error}
               </Alert>
             )}
             
         {/* Back to Dashboard button, above the card, left-aligned */}
+        <div className="relative z-10 mb-6 flex items-center">
+          <Button
+            variant="outline"
+            onClick={() => navigate('/dashboard')}
+            className="flex items-center px-4 py-2 text-sm font-medium text-neutral-200 hover:text-neutral-200 border border-neutral-800 bg-neutral-900 hover:bg-neutral-800 shadow-none rounded-md"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Dashboard
+          </Button>
+        </div>
+        
+
         {activeTab === 'profile' && (
-          <div className="mb-6 flex items-center">
-            <Button
-              variant="outline"
-              onClick={() => navigate('/dashboard')}
-              className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 border border-gray-200 bg-white hover:bg-gray-50 shadow-none rounded-md"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Dashboard
-            </Button>
-          </div>
-)}
-        {activeTab === 'profile' && (
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+          <Card className="bg-neutral-900/60 backdrop-blur-md border border-neutral-800 shadow-lg">
             <div className="p-6">
               
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">Personal Information</h2>
+              <h2 className="text-xl font-semibold text-foreground mb-6">Personal Information</h2>
               
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                    <label className="block text-sm font-medium text-neutral-300 mb-2">Full Name</label>
                     <Input
                       type="text"
                       name="name"
@@ -684,15 +784,15 @@ const ProfilePage: React.FC = () => {
                   </div>
                     
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                    <label className="block text-sm font-medium text-neutral-300 mb-2">Email Address</label>
                     <Input
                       type="email"
                       name="email"
                       value={formData.email}
                       disabled
-                      className="bg-gray-50"
+                      className="bg-neutral-900"
                     />
-                    <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
+                    <p className="text-xs text-neutral-400 mt-1">Email cannot be changed</p>
                   </div>
                 </div>
                 
@@ -700,7 +800,7 @@ const ProfilePage: React.FC = () => {
                   <Button
                     type="submit"
                     disabled={loading}
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    className="bg-gradient-to-r from-emerald-500 to-lime-500 hover:from-emerald-400 hover:to-lime-400 text-black font-semibold shadow-[0_0_20px_rgba(34,197,94,0.6)]"
                   >
                     {loading ? 'Saving...' : 'Save Changes'}
                   </Button>
@@ -709,17 +809,66 @@ const ProfilePage: React.FC = () => {
             </div>
           </Card>
         )}
+
+        {activeTab === 'profile' && (
+          <Card className="mt-6 bg-neutral-900/60 backdrop-blur-md border border-neutral-800 shadow-lg">
+            <div className="p-6 space-y-4">
+              <h2 className="text-xl font-semibold text-foreground">Referral Program</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <p className="text-sm text-neutral-400">Your referral code</p>
+                  <div className="flex items-center gap-2">
+                    <Input readOnly value={referralStats?.referralCode || user?.referralCode || ''} placeholder="No code available" />
+                    <Button type="button" size="sm" onClick={copyReferralCode} disabled={!referralStats?.referralCode && !user?.referralCode} className="bg-gradient-to-r from-emerald-500 to-lime-500 hover:from-emerald-400 hover:to-lime-400 text-black font-semibold shadow-[0_0_20px_rgba(34,197,94,0.6)]">Copy</Button>
+                  </div>
+                  <p className="text-xs text-neutral-500">Share your code with friends. New users can sign up with this code or visit your link: {window.location.origin}/?ref={(referralStats?.referralCode || user?.referralCode) || 'CODE'}</p>
+                </div>
+
+                <div className="space-y-2">
+                  <p className="text-sm text-neutral-400">Have a referral code?</p>
+                  {referralStats?.hasReferrer ? (
+                    <div className="text-sm text-neutral-300">A referral is already linked to your account.</div>
+                  ) : (
+                    <form onSubmit={handleLinkReferral} className="flex items-center gap-2">
+                      <Input value={referralCodeInput} onChange={(e) => setReferralCodeInput(e.target.value)} placeholder="Enter referral code" />
+                      <Button type="submit" disabled={referralLoading} className="bg-gradient-to-r from-emerald-500 to-lime-500 hover:from-emerald-400 hover:to-lime-400 text-black font-semibold shadow-[0_0_20px_rgba(34,197,94,0.6)]">{referralLoading ? 'Linking...' : 'Link Code'}</Button>
+                    </form>
+                  )}
+                  {referralMessage && <p className="text-emerald-400 text-sm">{referralMessage}</p>}
+                  {referralError && <p className="text-red-400 text-sm">{referralError}</p>}
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-neutral-800">
+                <h3 className="text-lg font-semibold text-foreground mb-2">Your referrals</h3>
+                <p className="text-sm text-neutral-400 mb-3">Total referrals: {referralStats?.totalReferrals ?? 0}</p>
+                {referralStats?.referredUsers?.length ? (
+                  <div className="space-y-2">
+                    {referralStats.referredUsers.map(r => (
+                      <div key={r.id} className="flex justify-between text-sm text-neutral-300">
+                        <span>{r.name} ({r.email})</span>
+                        <span className="text-neutral-500">{new Date(r.createdAt).toLocaleDateString()}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-neutral-500">No referrals yet.</p>
+                )}
+              </div>
+            </div>
+          </Card>
+        )}
         
         {/* Security Tab */}
         {activeTab === 'security' && (
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+          <Card className="bg-neutral-900/60 backdrop-blur-md border border-neutral-800 shadow-lg">
             <div className="p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">Change Password</h2>
+              <h2 className="text-xl font-semibold text-foreground mb-6">Change Password</h2>
               
               <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
+                    <label className="block text-sm font-medium text-neutral-300 mb-2">Current Password</label>
                     <div className="relative">
                     <Input
                         type={showPassword.current ? 'text' : 'password'}
@@ -731,7 +880,7 @@ const ProfilePage: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => togglePasswordVisibility('current')}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-neutral-200"
                       >
                         {showPassword.current ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
@@ -740,7 +889,7 @@ const ProfilePage: React.FC = () => {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">New Password</label>
+                    <label className="block text-sm font-medium text-neutral-300 mb-2">New Password</label>
                     <div className="relative">
                     <Input
                         type={showPassword.new ? 'text' : 'password'}
@@ -752,7 +901,7 @@ const ProfilePage: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => togglePasswordVisibility('new')}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-neutral-200"
                       >
                         {showPassword.new ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
@@ -761,7 +910,7 @@ const ProfilePage: React.FC = () => {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Confirm New Password</label>
+                    <label className="block text-sm font-medium text-neutral-300 mb-2">Confirm New Password</label>
                     <div className="relative">
                     <Input
                         type={showPassword.confirm ? 'text' : 'password'}
@@ -773,7 +922,7 @@ const ProfilePage: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => togglePasswordVisibility('confirm')}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-neutral-200"
                       >
                         {showPassword.confirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
@@ -786,7 +935,7 @@ const ProfilePage: React.FC = () => {
                   <Button
                     type="submit"
                     disabled={loading}
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    className="bg-gradient-to-r from-emerald-500 to-lime-500 hover:from-emerald-400 hover:to-lime-400 text-black font-semibold shadow-[0_0_20px_rgba(34,197,94,0.6)]"
                   >
                     {loading ? 'Updating...' : 'Update Password'}
                   </Button>
@@ -800,14 +949,14 @@ const ProfilePage: React.FC = () => {
         {activeTab === 'kyc' && (
           <div className="space-y-6">
             {/* KYC Status Card */}
-            <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+            <Card className="bg-neutral-900/60 backdrop-blur-md border border-neutral-800 shadow-lg">
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-semibold text-gray-900">KYC Verification Status</h2>
+                  <h2 className="text-xl font-semibold text-foreground">KYC Verification Status</h2>
                   {getKycStatusBadge(kycData.status)}
                 </div>
                 
-                <div className="space-y-3 text-sm text-gray-600">
+                <div className="space-y-3 text-sm text-muted-foreground">
                   <p>KYC (Know Your Customer) verification is required for security and compliance purposes.</p>
                   <p>Benefits of completing KYC:</p>
                   <ul className="list-disc list-inside space-y-1 ml-4">
@@ -821,7 +970,7 @@ const ProfilePage: React.FC = () => {
                 <div className="mt-6">
                   <Button
                     onClick={() => setKycModalOpen(true)}
-                    className="bg-green-600 hover:bg-green-700 text-white"
+                    className="bg-gradient-to-r from-emerald-500 to-lime-500 hover:from-emerald-400 hover:to-lime-400 text-black font-semibold shadow-[0_0_20px_rgba(34,197,94,0.6)]"
                   >
                     {kycData.status === 'not_submitted' ? 'Start KYC Verification' : 'Update KYC Information'}
                   </Button>
@@ -831,44 +980,44 @@ const ProfilePage: React.FC = () => {
             
             {/* KYC Information Display */}
             {kycData.status !== 'not_submitted' && (
-              <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+              <Card className="bg-neutral-900/60 backdrop-blur-md border border-neutral-800 shadow-lg">
                 <div className="p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Submitted Information</h3>
+                  <h3 className="text-lg font-semibold text-foreground mb-4">Submitted Information</h3>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                     <div>
-                      <span className="font-medium text-gray-700">Full Name:</span>
-                      <p className="text-gray-900">{kycData.fullName}</p>
+                      <span className="font-medium text-neutral-300">Full Name:</span>
+                      <p className="text-foreground">{kycData.fullName}</p>
                     </div>
                     <div>
-                      <span className="font-medium text-gray-700">Date of Birth:</span>
-                      <p className="text-gray-900">{kycData.dateOfBirth}</p>
+                      <span className="font-medium text-neutral-300">Date of Birth:</span>
+                      <p className="text-foreground">{kycData.dateOfBirth}</p>
                     </div>
                     <div>
-                      <span className="font-medium text-gray-700">Nationality:</span>
-                      <p className="text-gray-900">{kycData.nationality}</p>
+                      <span className="font-medium text-neutral-300">Nationality:</span>
+                      <p className="text-foreground">{kycData.nationality}</p>
                     </div>
                     <div>
-                      <span className="font-medium text-gray-700">Phone Number:</span>
-                      <p className="text-gray-900">{kycData.phoneNumber}</p>
+                      <span className="font-medium text-neutral-300">Phone Number:</span>
+                      <p className="text-foreground">{kycData.phoneNumber}</p>
                     </div>
                     <div className="md:col-span-2">
-                      <span className="font-medium text-gray-700">Address:</span>
-                      <p className="text-gray-900">{kycData.address}, {kycData.city}, {kycData.country} {kycData.postalCode}</p>
+                      <span className="font-medium text-neutral-300">Address:</span>
+                      <p className="text-foreground">{kycData.address}, {kycData.city}, {kycData.country} {kycData.postalCode}</p>
                     </div>
                     <div>
-                      <span className="font-medium text-gray-700">ID Type:</span>
-                      <p className="text-gray-900">{kycData.idType}</p>
+                      <span className="font-medium text-neutral-300">ID Type:</span>
+                      <p className="text-foreground">{kycData.idType}</p>
                     </div>
                     <div>
-                      <span className="font-medium text-gray-700">ID Number:</span>
-                      <p className="text-gray-900">{kycData.idNumber}</p>
+                      <span className="font-medium text-neutral-300">ID Number:</span>
+                      <p className="text-foreground">{kycData.idNumber}</p>
                     </div>
                   </div>
                   
                   {kycData.submittedAt && (
-                    <div className="mt-4 pt-4 border-t border-gray-200">
-                      <p className="text-xs text-gray-500">
+                    <div className="mt-4 pt-4 border-t border-neutral-800">
+                      <p className="text-xs text-neutral-400">
                         Submitted on: {new Date(kycData.submittedAt).toLocaleDateString()}
                       </p>
                     </div>
@@ -882,19 +1031,19 @@ const ProfilePage: React.FC = () => {
       
       {/* KYC Modal */}
       <Dialog open={kycModalOpen} onOpenChange={setKycModalOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-neutral-900/60 border border-neutral-800 rounded-xl backdrop-blur-md">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold">KYC Verification</DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-neutral-400">
               Please provide your personal information for identity verification. This information is encrypted and secure.
             </DialogDescription>
           </DialogHeader>
           
           <form onSubmit={handleKycSubmit} className="space-y-6">
-            <div className="mb-6 p-4 bg-yellow-50 border border-yellow-300 rounded-md max-h-48 overflow-y-auto text-xs text-gray-700" style={{fontSize:'13px'}}>
+            <div className="mb-6 p-4 bg-yellow-900/20 border border-yellow-700 rounded-md max-h-48 overflow-y-auto text-xs text-yellow-200" style={{fontSize:'13px'}}>
               <strong>User Agreement:</strong>
               <p>
-                By accessing or using this website and its services, including but not limited to submitting KYC documentation, depositing funds, or engaging in any cryptocurrency-based investment activity, you, the user, hereby acknowledge, understand, and agree that all investment activities involving cryptocurrencies, digital tokens, or blockchain-related assets are highly speculative, volatile, and involve substantial risk of loss, and that you are solely and entirely responsible for any and all investment decisions, financial actions, and consequences thereof made through this platform. You further acknowledge that the platform, its parent company, subsidiaries, affiliates, officers, directors, employees, contractors, partners, or licensors (collectively, “CryptoMax”) make no representations, warranties, or guarantees of any kind, express or implied, including but not limited to warranties of accuracy, reliability, suitability, merchantability, fitness for a particular purpose, non-infringement, or the likelihood of profit or return, and that no individual or entity associated with the Platform has made, implied, or suggested any promise, guarantee, or assurance of income, return, profitability, or protection against losses, and you agree that all investments are undertaken at your own sole risk, with full awareness of the possibility of total loss of capital. The Platform does not offer investment advice, portfolio management, financial consultancy, or any regulated financial services unless expressly and explicitly stated under applicable jurisdictional law, and you confirm that you are acting on your own behalf and not under the influence, coercion, direction, or recommendation of the Platform or any of its representatives. You are solely responsible for ensuring that your use of this website and the associated investment activities are compliant with all applicable local, national, or international laws, rules, and regulations, and you agree to indemnify, defend, and hold harmless the Platform and its representatives from any and all claims, liabilities, demands, losses, damages, legal actions, expenses, penalties, or causes of action arising from or in connection with your access to or use of the Platform, including but not limited to claims arising from regulatory violations, investment losses, technical malfunctions, or misinterpretation of content. You understand and acknowledge that investments made through this Platform are not insured, protected, or guaranteed by any government agency, regulatory authority, or financial compensation scheme, and that any reliance on performance projections, simulated returns, or third-party data is done entirely at your discretion and risk. By continuing, you also agree that the submission of your KYC documentation is voluntary and that all personal data submitted may be used, processed, verified, or stored in accordance with applicable data protection laws and the Platform’s internal compliance procedures, and you waive any claim of liability against the Platform for lawful data usage. You explicitly affirm that no third party, agent, or platform representative has promised or guaranteed any specific outcome, return, or financial benefit, and you acknowledge that returns, if any, are subject to market fluctuations and may vary dramatically over time. By checking the box below and proceeding to use the services, you irrevocably confirm that you have read, understood, and voluntarily accepted this entire Agreement, including all associated risk disclosures, disclaimers, data usage terms, and indemnity clauses, and that you accept full legal and financial responsibility for your actions on this platform. If you do not agree to all of the above terms, you must not proceed further, must not submit any KYC or personal data, and must immediately exit the website and refrain from using the Platform in any capacity. You further confirm that this Agreement is legally binding and enforceable under applicable law and that you waive any defense based on lack of understanding, ambiguous interpretation, or non-disclosure, as this Agreement is intentionally verbose, comprehensive, and structured to ensure complete and transparent disclosure of all risks, liabilities, and responsibilities associated with your use of the Platform.
+                <UserAgreementText />
               </p>
             </div>
             <div className="flex items-center mb-4">
@@ -903,16 +1052,16 @@ const ProfilePage: React.FC = () => {
                 id="userAgreement"
                 checked={userAgreementChecked}
                 onChange={e => setUserAgreementChecked(e.target.checked)}
-                className="mr-2"
+                className="mr-2 rounded border-neutral-800 bg-neutral-900/60"
                 required
               />
-              <label htmlFor="userAgreement" className="text-sm text-gray-700 select-none">
+              <label htmlFor="userAgreement" className="text-sm text-neutral-300 select-none">
                 I have read and agree to the User Agreement above.
               </label>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Full Name (as on ID)</label>
+                <label className="block text-sm font-medium text-neutral-300 mb-2">Full Name (as on ID)</label>
                 <Input
                   type="text"
                   name="fullName"
@@ -920,24 +1069,26 @@ const ProfilePage: React.FC = () => {
                   onChange={handleKycChange}
                   placeholder="Enter your full name"
                   required
+                  className="bg-neutral-900/60 border border-neutral-800 text-neutral-100 placeholder-neutral-500"
                 />
                 {kycErrors.fullName && <p className="text-red-500 text-sm mt-1">{kycErrors.fullName}</p>}
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Date of Birth</label>
+                <label className="block text-sm font-medium text-neutral-300 mb-2">Date of Birth</label>
                 <Input
                   type="date"
                   name="dateOfBirth"
                   value={kycData.dateOfBirth}
                   onChange={handleKycChange}
                   required
+                  className="bg-neutral-900/60 border border-neutral-800 text-neutral-100"
                 />
                 {kycErrors.dateOfBirth && <p className="text-red-500 text-sm mt-1">{kycErrors.dateOfBirth}</p>}
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Nationality</label>
+                <label className="block text-sm font-medium text-neutral-300 mb-2">Nationality</label>
                 <Input
                   type="text"
                   name="nationality"
@@ -945,12 +1096,13 @@ const ProfilePage: React.FC = () => {
                   onChange={handleKycChange}
                   placeholder="Enter your nationality"
                   required
+                  className="bg-neutral-900/60 border border-neutral-800 text-neutral-100 placeholder-neutral-500"
                 />
                 {kycErrors.nationality && <p className="text-red-500 text-sm mt-1">{kycErrors.nationality}</p>}
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                <label className="block text-sm font-medium text-neutral-300 mb-2">Phone Number</label>
                 <Input
                   type="tel"
                   name="phoneNumber"
@@ -958,12 +1110,13 @@ const ProfilePage: React.FC = () => {
                   onChange={handleKycChange}
                   placeholder="Enter your phone number"
                   required
+                  className="bg-neutral-900/60 border border-neutral-800 text-neutral-100 placeholder-neutral-500"
                 />
                 {kycErrors.phoneNumber && <p className="text-red-500 text-sm mt-1">{kycErrors.phoneNumber}</p>}
               </div>
               
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                <label className="block text-sm font-medium text-neutral-300 mb-2">Address</label>
                 <Input
                   type="text"
                   name="address"
@@ -971,12 +1124,13 @@ const ProfilePage: React.FC = () => {
                   onChange={handleKycChange}
                   placeholder="Enter your full address"
                   required
+                  className="bg-neutral-900/60 border border-neutral-800 text-neutral-100 placeholder-neutral-500"
                 />
                 {kycErrors.address && <p className="text-red-500 text-sm mt-1">{kycErrors.address}</p>}
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
+                <label className="block text-sm font-medium text-neutral-300 mb-2">City</label>
                 <Input
                   type="text"
                   name="city"
@@ -984,12 +1138,13 @@ const ProfilePage: React.FC = () => {
                   onChange={handleKycChange}
                   placeholder="Enter your city"
                   required
+                  className="bg-neutral-900/60 border border-neutral-800 text-neutral-100 placeholder-neutral-500"
                 />
                 {kycErrors.city && <p className="text-red-500 text-sm mt-1">{kycErrors.city}</p>}
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Country</label>
+                <label className="block text-sm font-medium text-neutral-300 mb-2">Country</label>
                 <Input
                   type="text"
                   name="country"
@@ -997,12 +1152,13 @@ const ProfilePage: React.FC = () => {
                   onChange={handleKycChange}
                   placeholder="Enter your country"
                   required
+                  className="bg-neutral-900/60 border border-neutral-800 text-neutral-100 placeholder-neutral-500"
                 />
                 {kycErrors.country && <p className="text-red-500 text-sm mt-1">{kycErrors.country}</p>}
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Postal Code</label>
+                <label className="block text-sm font-medium text-neutral-300 mb-2">Postal Code</label>
                 <Input
                   type="text"
                   name="postalCode"
@@ -1010,17 +1166,18 @@ const ProfilePage: React.FC = () => {
                   onChange={handleKycChange}
                   placeholder="Enter postal code"
                   required
+                  className="bg-neutral-900/60 border border-neutral-800 text-neutral-100 placeholder-neutral-500"
                 />
                 {kycErrors.postalCode && <p className="text-red-500 text-sm mt-1">{kycErrors.postalCode}</p>}
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">ID Type</label>
+                <label className="block text-sm font-medium text-neutral-300 mb-2">ID Type</label>
                 <select
                   name="idType"
                   value={kycData.idType}
                   onChange={handleKycChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-neutral-900/60 border border-neutral-800 rounded-md text-neutral-100 focus:outline-none focus:ring-2 focus:ring-primary"
                   required
                 >
                   <option value="">Select ID Type</option>
@@ -1033,7 +1190,7 @@ const ProfilePage: React.FC = () => {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">ID Number</label>
+                <label className="block text-sm font-medium text-neutral-300 mb-2">ID Number</label>
                 <Input
                   type="text"
                   name="idNumber"
@@ -1041,6 +1198,7 @@ const ProfilePage: React.FC = () => {
                   onChange={handleKycChange}
                   placeholder="Enter your ID number"
                   required
+                  className="bg-neutral-900/60 border border-neutral-800 text-neutral-100 placeholder-neutral-500"
                 />
                 {kycErrors.idNumber && <p className="text-red-500 text-sm mt-1">{kycErrors.idNumber}</p>}
               </div>
@@ -1057,7 +1215,7 @@ const ProfilePage: React.FC = () => {
               <Button
                 type="submit"
                 disabled={kycLoading || !userAgreementChecked}
-                className="bg-green-600 hover:bg-green-700 text-white"
+                className="bg-gradient-to-r from-emerald-500 to-lime-500 hover:from-emerald-400 hover:to-lime-400 text-black font-semibold shadow-[0_0_20px_rgba(34,197,94,0.6)]"
               >
                 {kycLoading ? 'Submitting...' : 'Submit KYC'}
               </Button>

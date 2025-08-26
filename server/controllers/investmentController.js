@@ -74,6 +74,45 @@ exports.getInvestments = async (req, res) => {
         if (daysSinceStart >= maxDays && investment.status === 'active') {
           investment.status = 'completed';
         }
+
+        // If completed and maturity not processed yet, process payout
+        if (investment.status === 'completed' && !investment.maturityProcessed) {
+          try {
+            // Atomically claim processing to prevent duplicates across endpoints/requests
+            const claimed = await Investment.findOneAndUpdate(
+              { _id: investment._id, maturityProcessed: { $ne: true } },
+              { $set: { maturityProcessed: true, maturedAt: new Date() } },
+              { new: true }
+            );
+
+            if (claimed) {
+              // Credit wallet with principal + interest
+              const wallet = await Wallet.findOne({ user: investment.user });
+              const payoutAmount = investment.amount + (investment.totalEarnings || 0);
+              wallet.balance += payoutAmount;
+              await wallet.save();
+
+              // Ensure unique transaction per investment maturity
+              const ref = `MATURE:${investment._id.toString()}`;
+              const exists = await Transaction.findOne({ user: investment.user, reference: ref });
+              if (!exists) {
+                const maturityTx = new Transaction({
+                  user: investment.user,
+                  type: 'profit',
+                  amount: payoutAmount,
+                  status: 'completed',
+                  description: 'Investment Matured',
+                  completedAt: Date.now(),
+                  createdAt: new Date(),
+                  reference: ref
+                });
+                await maturityTx.save();
+              }
+            }
+          } catch (payoutErr) {
+            console.error('Maturity payout error:', payoutErr?.message);
+          }
+        }
         
         await investment.save();
         return investment;
@@ -132,6 +171,9 @@ exports.createInvestment = async (req, res) => {
     const endDate = new Date();
     endDate.setDate(endDate.getDate() + plan.duration);
     
+    // Check if this is the user's first investment (before creating new one)
+    const priorInvestmentsCount = await Investment.countDocuments({ user: req.user.id });
+
     // Create subscription investment
     const investment = new Investment({
       user: req.user.id,
@@ -170,6 +212,30 @@ exports.createInvestment = async (req, res) => {
     });
     await transaction.save();
     
+    // Affiliate commission on first investment
+    try {
+      if (priorInvestmentsCount === 0) {
+        const Referral = require('../models/Referral');
+        const Commission = require('../models/Commission');
+        const referral = await Referral.findOne({ referee: req.user.id });
+        if (referral) {
+          // Prevent duplicate commission for same referee (unique by investment already helps)
+          const rate = Number(process.env.AFFILIATE_COMMISSION_RATE || 5);
+          const commissionAmount = Math.round((amount * rate) ) / 100; // amount is number in dollars
+          await Commission.create({
+            referrer: referral.referrer,
+            referee: referral.referee,
+            investment: investment._id,
+            investmentAmount: amount,
+            rate,
+            amount: (amount * rate) / 100
+          });
+        }
+      }
+    } catch (affErr) {
+      console.warn('Affiliate commission creation failed (non-blocking):', affErr?.message);
+    }
+
     // Populate investment with crypto and plan details
     const populatedInvestment = await Investment.findById(investment._id)
       .populate('crypto', 'name symbol currentPrice')
@@ -264,7 +330,7 @@ exports.getPortfolio = async (req, res) => {
     // Try to fetch from database
     const investments = await Investment.find({ 
       user: req.user.id,
-      status: { $in: ['active', 'completed'] }
+      status: { $in: ['active'] }
     }).populate('crypto', 'name symbol currentPrice image')
       .populate('investmentPlan', 'name dailyReturnPercentage duration');
     
@@ -302,20 +368,28 @@ exports.getPortfolio = async (req, res) => {
       if (daysSinceStart >= maxDays && investment.status === 'active') {
         investment.status = 'completed';
       }
+
+      // Do not process maturity here to avoid duplicate processing; handled in getInvestments
       
       await investment.save();
       
-      totalInvested += amount;
-      totalCurrentValue += currentValue;
-      totalProfitLoss += profitLoss;
+      // Only include active investments in portfolio summary
+      if (investment.status === 'active') {
+        totalInvested += amount;
+        totalCurrentValue += currentValue;
+        totalProfitLoss += profitLoss;
+      }
       
       return investment;
     }));
     
     const totalProfitLossPercentage = totalInvested > 0 ? (totalProfitLoss / totalInvested) * 100 : 0;
     
+    // Ensure only active investments are returned in portfolio holdings
+    const activeInvestments = updatedInvestments.filter(inv => inv.status === 'active');
+
     res.json({
-      investments: updatedInvestments,
+      investments: activeInvestments,
       summary: {
         totalInvested,
         totalCurrentValue,

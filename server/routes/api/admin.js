@@ -114,4 +114,20 @@ router.get('/kyc/pending', adminController.getPendingKycUsers);
 router.post('/kyc/:userId/approve', adminController.approveKyc);
 router.post('/kyc/:userId/reject', adminController.rejectKyc);
 
+// ==================== COMMISSIONS ====================
+// @route   GET api/admin/commissions
+// @desc    List commissions (optional status, pagination)
+// @access  Private/Admin
+router.get('/commissions', adminController.getCommissions);
+
+// @route   PUT api/admin/commissions/:id/pay
+// @desc    Mark a commission as paid
+// @access  Private/Admin
+router.put('/commissions/:id/pay', adminController.markCommissionPaid);
+
+// @route   GET api/admin/commissions/export.csv
+// @desc    Export commissions to CSV
+// @access  Private/Admin
+router.get('/commissions/export.csv', adminController.exportCommissionsCsv);
+
 module.exports = router;

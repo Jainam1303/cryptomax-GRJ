@@ -34,4 +34,15 @@ router.post(
 // @access  Private
 router.get('/user', auth, authController.getUser);
 
+// KYC endpoints
+// @route   POST api/auth/kyc/submit
+// @desc    Submit KYC info
+// @access  Private
+router.post('/kyc/submit', auth, authController.submitKyc);
+
+// @route   GET api/auth/kyc/status
+// @desc    Get current KYC status
+// @access  Private
+router.get('/kyc/status', auth, authController.getKycStatus);
+
 module.exports = router;

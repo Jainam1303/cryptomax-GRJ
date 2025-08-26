@@ -4,11 +4,10 @@ import { TrendingUp, TrendingDown } from 'lucide-react';
 import { getInvestments, sellInvestment } from '../../redux/thunks/investmentThunks';
 import { RootState, AppDispatch } from '../../redux/store';
 import { formatCurrency, formatPercentage, formatDate } from '../../utils/formatters';
-import Card from '../ui/Card';
-import Button from '../ui/Button';
+import { Card } from '../ui/card';
+import { Button } from '../ui/button';
 import Spinner from '../ui/Spinner';
-import Alert from '../ui/Alert';
-import { Input } from '../ui/Input';
+import { Alert, AlertTitle, AlertDescription } from '../ui/Alert';
 
 const InvestmentList: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -34,10 +33,10 @@ const InvestmentList: React.FC = () => {
   
   if (error) {
     return (
-      <Alert
-        variant="danger"
-        message={error}
-      />
+      <Alert variant="destructive">
+        <AlertTitle>Error</AlertTitle>
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
     );
   }
   
@@ -45,10 +44,10 @@ const InvestmentList: React.FC = () => {
     return (
       <Card>
         <div className="text-center py-6">
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+          <h3 className="text-lg font-medium text-neutral-100 mb-2">
             No active investments
           </h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
+          <p className="text-neutral-400 mb-4">
             You don't have any active investments yet. Start investing to grow your portfolio.
           </p>
         </div>
@@ -72,18 +71,18 @@ const InvestmentList: React.FC = () => {
                     className="w-12 h-12 rounded-full object-cover mr-3"
                   />
                 ) : (
-                  <div className="w-12 h-12 bg-gradient-to-r from-orange-400 to-yellow-400 rounded-full flex items-center justify-center mr-3">
+                  <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-full flex items-center justify-center mr-3">
                     <span className="text-white font-bold">{investment.crypto.symbol[0]}</span>
                   </div>
                 )}
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{investment.crypto.name}</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{investment.crypto.symbol}</p>
+                  <h3 className="text-lg font-semibold text-neutral-100">{investment.crypto.name}</h3>
+                  <p className="text-sm text-neutral-400">{investment.crypto.symbol}</p>
                 </div>
               </div>
               
               <div className="flex flex-col items-end">
-                <div className="text-xl font-bold text-gray-900 dark:text-white">
+                <div className="text-xl font-bold text-neutral-100">
                   {formatCurrency(investment.currentValue)}
                 </div>
                 <div className="flex items-center">
@@ -101,29 +100,29 @@ const InvestmentList: React.FC = () => {
               </div>
             </div>
             
-            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="mt-4 pt-4 border-t border-neutral-800">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Quantity</p>
-                  <p className="text-base font-medium text-gray-900 dark:text-white">
+                  <p className="text-sm text-neutral-400">Quantity</p>
+                  <p className="text-base font-medium text-neutral-100">
                     {investment.quantity.toFixed(8)} {investment.crypto.symbol}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Buy Price</p>
-                  <p className="text-base font-medium text-gray-900 dark:text-white">
+                  <p className="text-sm text-neutral-400">Buy Price</p>
+                  <p className="text-base font-medium text-neutral-100">
                     {formatCurrency(investment.buyPrice)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Current Price</p>
-                  <p className="text-base font-medium text-gray-900 dark:text-white">
+                  <p className="text-sm text-neutral-400">Current Price</p>
+                  <p className="text-base font-medium text-neutral-100">
                     {formatCurrency(investment.crypto.currentPrice)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Invested On</p>
-                  <p className="text-base font-medium text-gray-900 dark:text-white">
+                  <p className="text-sm text-neutral-400">Invested On</p>
+                  <p className="text-base font-medium text-neutral-100">
                     {formatDate(investment.createdAt)}
                   </p>
                 </div>
@@ -131,7 +130,7 @@ const InvestmentList: React.FC = () => {
               
               <div className="mt-4 flex justify-end">
                 <Button
-                  variant={isProfitable ? 'success' : 'danger'}
+                  variant={isProfitable ? 'default' : 'destructive'}
                   onClick={() => handleSell(investment._id)}
                 >
                   Sell {investment.crypto.symbol}

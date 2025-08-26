@@ -5,7 +5,7 @@ import { Wallet as WalletIcon, ArrowUpRight, ArrowDownRight, Clock } from 'lucid
 import { getWallet } from '../../redux/thunks/walletThunks';
 import { RootState, AppDispatch } from '../../redux/store';
 import { formatCurrency } from '../../utils/formatters';
-import Card from '../ui/card';
+import { Card } from '../ui/card';
 import { Button } from '../ui/button';
 import Spinner from '../ui/Spinner';
 import DepositForm from './DepositForm';

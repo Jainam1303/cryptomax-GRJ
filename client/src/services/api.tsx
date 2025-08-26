@@ -30,10 +30,15 @@ const getStoredToken = (): string | null => {
   return null;
 };
 
+// Latch to prevent multiple redirects to login on 401
+let hasRedirectedToLogin = false;
+
 // Set auth token for all requests
 export const setAuthToken = (token: string | null): void => {
   if (token) {
     api.defaults.headers.common['x-auth-token'] = token;
+    // Reset redirect latch when we have a valid token again
+    hasRedirectedToLogin = false;
   } else {
     delete api.defaults.headers.common['x-auth-token'];
   }
@@ -45,7 +50,24 @@ if (initialToken) {
   setAuthToken(initialToken);
 }
 
-let hasRedirectedToLogin = false;
+// Ensure each request uses the latest token from storage (handles tab changes or token refresh)
+api.interceptors.request.use((config: AxiosRequestConfig) => {
+  const token = ((): string | null => {
+    const lt = localStorage.getItem('token');
+    if (lt) return lt;
+    const st = sessionStorage.getItem('token');
+    if (st) return st;
+    return null;
+  })();
+  if (token) {
+    (config.headers as any)['x-auth-token'] = token;
+  } else {
+    if (config.headers) {
+      delete (config.headers as any)['x-auth-token'];
+    }
+  }
+  return config;
+});
 
 // Add response interceptor for error handling
 api.interceptors.response.use(
@@ -57,6 +79,8 @@ api.interceptors.response.use(
       localStorage.removeItem('token');
       localStorage.removeItem('rememberMe');
       sessionStorage.removeItem('token');
+      // Clear header immediately
+      setAuthToken(null);
       
       // Prevent infinite reloads/redirects
       if (!hasRedirectedToLogin && window.location.pathname !== '/login') {

@@ -7,7 +7,7 @@ import { isValidWithdrawalAmount } from '../../utils/validators';
 import { formatCurrency } from '../../utils/formatters';
 import { Input } from '../ui/Input';
 import { Label } from '../ui/label';
-import Button from '../ui/button';
+import { Button } from '../ui/button';
 import { Alert } from '../ui/Alert';
 
 const WithdrawalForm: React.FC = () => {
@@ -101,7 +101,7 @@ const WithdrawalForm: React.FC = () => {
           </div>
         </Alert>
         <Button
-          variant="primary"
+          variant="default"
           onClick={() => {
             setSuccess(false);
             setAmount('');
@@ -206,7 +206,7 @@ const WithdrawalForm: React.FC = () => {
         </div>
         <Button
           type="submit"
-          variant="primary"
+          variant="default"
           disabled={!amount || !isValidWithdrawalAmount(amount, wallet?.balance || 0) || parseFloat(amount) < 10 || loading}
           className="bg-purple-600 hover:bg-purple-700 text-white disabled:opacity-50"
         >

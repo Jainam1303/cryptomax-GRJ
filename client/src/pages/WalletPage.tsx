@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import Card from "@/components/ui/card";
-import Button from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -76,28 +77,26 @@ const WalletPage = () => {
   const pendingDepositsAmount = pendingDeposits.reduce((sum, t) => sum + t.amount, 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-black text-neutral-100">
       {/* Navigation */}
-      <nav className="bg-white/80 backdrop-blur-md border-b border-gray-200">
+      <nav className="bg-neutral-900/60 backdrop-blur-md border-b border-neutral-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
-              <Link to="/dashboard" className="flex items-center text-gray-600 hover:text-gray-900">
+              <Link to="/dashboard" className="flex items-center text-muted-foreground hover:text-primary transition-colors">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Dashboard
               </Link>
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">CM</span>
-                </div>
-                <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                <img src="/logos/CMlogo.svg" alt="CryptoMax" className="w-12 h-12 rounded-lg" />
+                <span className="text-xl font-bold gradient-text">
                   CryptoMax
                 </span>
               </div>
             </div>
             
             <div className="flex items-center space-x-4">
-              <span className="text-gray-700">Welcome, {user?.name}</span>
+              <span className="text-foreground">Welcome, {user?.name}</span>
               <Button variant="outline" onClick={logout}>
                 Logout
               </Button>
@@ -109,74 +108,74 @@ const WalletPage = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Wallet</h1>
-          <p className="text-gray-600">Manage your funds and view transaction history.</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Wallet</h1>
+          <p className="text-muted-foreground">Manage your funds and view transaction history.</p>
         </div>
 
         {/* Wallet Overview */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+          <Card className="bg-neutral-900/60 border border-neutral-800">
             <div className="flex flex-row items-center justify-between space-y-0 pb-2 px-6 pt-6">
-              <span className="text-sm font-medium text-gray-600">Available Balance</span>
-              <DollarSign className="h-4 w-4 text-gray-600" />
+              <span className="text-sm font-medium text-muted-foreground">Available Balance</span>
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
             </div>
             <div className="px-6 pb-6">
-              <div className="text-2xl font-bold text-gray-900">
+              <div className="text-2xl font-bold text-foreground">
                 ${wallet?.balance?.toLocaleString() || '0.00'}
               </div>
-              <p className="text-xs text-gray-600 mt-1">Ready to invest</p>
+              <p className="text-xs text-muted-foreground mt-1">Ready to invest</p>
             </div>
           </Card>
 
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+          <Card className="bg-neutral-900/60 border border-neutral-800">
             <div className="flex flex-row items-center justify-between space-y-0 pb-2 px-6 pt-6">
-              <span className="text-sm font-medium text-gray-600">Total Deposited</span>
-              <TrendingUp className="h-4 w-4 text-gray-600" />
+              <span className="text-sm font-medium text-muted-foreground">Total Deposited</span>
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </div>
             <div className="px-6 pb-6">
               <div className="text-2xl font-bold text-green-600">
                 ${totalDeposited.toLocaleString()}
               </div>
-              <p className="text-xs text-gray-600 mt-1">All time deposits (approved)</p>
+              <p className="text-xs text-muted-foreground mt-1">All time deposits (approved)</p>
             </div>
           </Card>
 
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+          <Card className="bg-neutral-900/60 border border-neutral-800">
             <div className="flex flex-row items-center justify-between space-y-0 pb-2 px-6 pt-6">
-              <span className="text-sm font-medium text-gray-600">Total Withdrawn</span>
-              <TrendingDown className="h-4 w-4 text-gray-600" />
+              <span className="text-sm font-medium text-muted-foreground">Total Withdrawn</span>
+              <TrendingDown className="h-4 w-4 text-muted-foreground" />
             </div>
             <div className="px-6 pb-6">
               <div className="text-2xl font-bold text-red-600">
                 ${wallet?.totalWithdrawn?.toLocaleString() || '0.00'}
               </div>
-              <p className="text-xs text-gray-600 mt-1">All time withdrawals</p>
+              <p className="text-xs text-muted-foreground mt-1">All time withdrawals</p>
             </div>
           </Card>
 
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+          <Card className="bg-neutral-900/60 border border-neutral-800">
             <div className="flex flex-row items-center justify-between space-y-0 pb-2 px-6 pt-6">
-              <span className="text-sm font-medium text-gray-600">Pending</span>
-              <Wallet className="h-4 w-4 text-gray-600" />
+              <span className="text-sm font-medium text-muted-foreground">Pending</span>
+              <Wallet className="h-4 w-4 text-muted-foreground" />
             </div>
             <div className="px-6 pb-6">
               <div className="text-2xl font-bold text-yellow-600">
                 ${(wallet?.pendingDeposits || 0) + (wallet?.pendingWithdrawals || 0)}
               </div>
-              <p className="text-xs text-gray-600 mt-1">Pending transactions</p>
+              <p className="text-xs text-muted-foreground mt-1">Pending transactions</p>
             </div>
           </Card>
 
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+          <Card className="bg-neutral-900/60 border border-neutral-800">
             <div className="flex flex-row items-center justify-between space-y-0 pb-2 px-6 pt-6">
-              <span className="text-sm font-medium text-gray-600">Pending Deposits</span>
+              <span className="text-sm font-medium text-muted-foreground">Pending Deposits</span>
               <TrendingUp className="h-4 w-4 text-yellow-600" />
             </div>
             <div className="px-6 pb-6">
               <div className="text-2xl font-bold text-yellow-600">
                 ${pendingDepositsAmount.toLocaleString()}
               </div>
-              <p className="text-xs text-gray-600 mt-1">Deposits awaiting approval</p>
+              <p className="text-xs text-muted-foreground mt-1">Deposits awaiting approval</p>
             </div>
           </Card>
         </div>
@@ -203,7 +202,7 @@ const WalletPage = () => {
 
           <Dialog open={isWithdrawOpen} onOpenChange={setIsWithdrawOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" className="border-red-600 text-red-600 hover:bg-red-50">
+              <Button variant="outline" className="border-red-500 text-red-500 hover:bg-red-500/10">
                 <Minus className="w-4 h-4 mr-2" />
                 Withdraw Funds
               </Button>
@@ -229,7 +228,7 @@ const WalletPage = () => {
                     onChange={(e) => setWithdrawAmount(e.target.value)}
                     required
                   />
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-muted-foreground mt-1">
                     Minimum withdrawal amount: $50<br />
                     Available: ${wallet?.balance?.toLocaleString() || '0.00'}
                   </p>
@@ -237,10 +236,10 @@ const WalletPage = () => {
                 <div>
                   <Label htmlFor="withdraw-method">Withdrawal Method</Label>
                   <Select value={withdrawMethod} onValueChange={setWithdrawMethod} required>
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-neutral-900/60 border border-neutral-800 text-neutral-100">
                       <SelectValue placeholder="Select withdrawal method" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white dark:bg-gray-900">
+                    <SelectContent className="bg-popover text-popover-foreground">
                       <SelectItem value="usdt_trc20">USDT (TRC20)</SelectItem>
                     </SelectContent>
                   </Select>
@@ -253,6 +252,7 @@ const WalletPage = () => {
                     value={withdrawDetails}
                     onChange={(e) => setWithdrawDetails(e.target.value)}
                     required
+                    className="bg-neutral-900/60 border border-neutral-800 text-neutral-100 placeholder-neutral-500"
                   />
                 </div>
                 <Button type="submit" disabled={loading} className="w-full">
@@ -271,82 +271,56 @@ const WalletPage = () => {
         </div>
 
         {/* Recent Transactions */}
-        <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-          <div className="flex items-center justify-between">
-            <span className="flex items-center justify-between">
-              Recent Transactions
-              <Link to="/transactions">
-                <Button variant="outline" size="sm">View All</Button>
-              </Link>
-            </span>
-            <Button variant="outline" size="sm" onClick={handleRefresh} className="ml-2">Refresh</Button>
-          </div>
-          <div className="space-y-4">
-            {transactions.length > 0 ? (
-              transactions.slice(0, 10).map((transaction, index) => {
-                // Icon, color, and sign logic
-                let icon, iconBg, amountColor, sign;
-                switch (transaction.type) {
-                  case 'deposit':
-                    icon = <TrendingUp className="w-4 h-4 text-green-600" />;
-                    iconBg = 'bg-green-100';
-                    amountColor = 'text-green-600';
-                    sign = '+';
-                    break;
-                  case 'withdrawal':
-                  case 'investment':
-                    icon = <TrendingDown className="w-4 h-4 text-red-600" />;
-                    iconBg = 'bg-red-100';
-                    amountColor = 'text-red-600';
-                    sign = '-';
-                    break;
-                  case 'profit':
-                    icon = <TrendingUp className="w-4 h-4 text-green-600" />;
-                    iconBg = 'bg-green-100';
-                    amountColor = 'text-green-600';
-                    sign = '+';
-                    break;
-                  case 'loss':
-                    icon = <TrendingDown className="w-4 h-4 text-red-600" />;
-                    iconBg = 'bg-red-100';
-                    amountColor = 'text-red-600';
-                    sign = '-';
-                    break;
-                  default:
-                    icon = <TrendingDown className="w-4 h-4 text-gray-400" />;
-                    iconBg = 'bg-gray-100';
-                    amountColor = 'text-gray-600';
-                    sign = '';
-                }
-                return (
-                  <div key={index} className="flex items-center justify-between p-4 rounded-lg bg-gray-50/50">
-                    <div className="flex items-center space-x-4">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${iconBg}`}>
-                        {icon}
+        <Card className="bg-neutral-900/60 border border-neutral-800">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-foreground">Recent Transactions</h2>
+              <Link to="/transactions" className="text-sm text-primary hover:underline">View all</Link>
+            </div>
+
+            {loading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              </div>
+            ) : transactions.length === 0 ? (
+              <p className="text-muted-foreground">No transactions yet.</p>
+            ) : (
+              <div className="divide-y divide-neutral-800">
+                {transactions.slice(0, 5).map((t) => (
+                  <div key={t._id} className="flex items-center justify-between py-3">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${(t.type === 'deposit' || t.type === 'profit') ? 'bg-green-500/15 text-green-500' : 'bg-red-500/15 text-red-500'}`}>
+                        {t.type === 'profit' ? (
+                          <TrendingUp className="w-4 h-4" />
+                        ) : t.type === 'deposit' ? (
+                          <Plus className="w-4 h-4" />
+                        ) : (
+                          <Minus className="w-4 h-4" />
+                        )}
                       </div>
                       <div>
-                        <div className="font-semibold text-gray-900 capitalize">
-                          {transaction.type === 'profit' ? 'Profit' : transaction.type === 'loss' ? 'Loss' : transaction.type}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {new Date(transaction.createdAt).toLocaleDateString()}
-                        </div>
+                        <div className="text-sm font-medium text-foreground capitalize">{t.type}</div>
+                        <div className="text-xs text-muted-foreground">{new Date(t.createdAt).toLocaleString()}</div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className={`font-semibold ${amountColor}`}>
-                        {sign}${(transaction.amount ?? 0).toLocaleString()}
-                      </div>
-                      <div className="text-sm text-gray-500 capitalize">
-                        {transaction.status}
+                    <div className="flex items-center gap-3">
+                      <Badge
+                        className={
+                          t.status === 'completed'
+                            ? 'bg-green-500/15 text-green-500'
+                            : t.status === 'pending'
+                            ? 'bg-yellow-500/15 text-yellow-500'
+                            : 'bg-red-500/15 text-red-500'
+                        }
+                      >
+                        {t.status}
+                      </Badge>
+                      <div className={`text-sm font-semibold ${(t.type === 'deposit' || t.type === 'profit') ? 'text-green-500' : 'text-red-500'}`}>
+                        {(t.type === 'deposit' || t.type === 'profit') ? '+' : '-'}${t.amount.toLocaleString()}
                       </div>
                     </div>
                   </div>
-                );
-              })
-            ) : (
-              <div className="text-center py-8 text-gray-500">
-                <p>No transactions yet. Make your first deposit to get started!</p>
+                ))}
               </div>
             )}
           </div>

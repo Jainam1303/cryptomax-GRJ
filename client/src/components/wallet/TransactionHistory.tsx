@@ -4,7 +4,7 @@ import { ArrowUpRight, ArrowDownRight, TrendingUp, AlertCircle } from 'lucide-re
 import { getTransactions } from '../../redux/thunks/walletThunks';
 import { RootState, AppDispatch } from '../../redux/store';
 import { formatCurrency, formatDate } from '../../utils/formatters';
-import Card from '../ui/card';
+import { Card } from '../ui/card';
 import Spinner from '../ui/Spinner';
 import { Badge } from '../ui/Badge';
 
@@ -89,11 +89,11 @@ const TransactionHistory: React.FC = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'completed':
-        return <Badge variant="success">Completed</Badge>;
+        return <Badge variant="secondary">Completed</Badge>;
       case 'pending':
-        return <Badge variant="warning">Pending</Badge>;
+        return <Badge variant="outline">Pending</Badge>;
       case 'failed':
-        return <Badge variant="danger">Failed</Badge>;
+        return <Badge variant="destructive">Failed</Badge>;
       case 'cancelled':
         return <Badge variant="default">Cancelled</Badge>;
       default:

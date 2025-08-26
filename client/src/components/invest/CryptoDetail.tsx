@@ -17,8 +17,8 @@ import { TrendingUp, TrendingDown, DollarSign, BarChart2, Hash } from 'lucide-re
 import { getCryptoById, getPriceHistory } from '../../redux/thunks/cryptoThunks';
 import { RootState, AppDispatch } from '../../redux/store';
 import { formatCurrency, formatPercentage, formatNumber } from '../../utils/formatters';
-import Card from '../ui/Card';
-import Button from '../ui/Button';
+import { Card } from '../ui/card';
+import { Button } from '../ui/button';
 import Spinner from '../ui/Spinner';
 import InvestmentForm from './InvestmentForm';
 
@@ -183,13 +183,13 @@ const CryptoDetail: React.FC = () => {
               </div>
             )}
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{selectedCrypto.name}</h2>
-              <p className="text-gray-600 dark:text-gray-400">{selectedCrypto.symbol}</p>
+              <h2 className="text-2xl font-bold text-neutral-100">{selectedCrypto.name}</h2>
+              <p className="text-neutral-400">{selectedCrypto.symbol}</p>
             </div>
           </div>
           
           <div className="flex flex-col items-end">
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">
+            <div className="text-2xl font-bold text-neutral-100">
               {formatCurrency(selectedCrypto.currentPrice)}
             </div>
             <div className="flex items-center">
@@ -213,7 +213,7 @@ const CryptoDetail: React.FC = () => {
             className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
               timeframe === '1d'
                 ? 'bg-primary-500 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+                : 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700'
             }`}
           >
             24H
@@ -223,7 +223,7 @@ const CryptoDetail: React.FC = () => {
             className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
               timeframe === '7d'
                 ? 'bg-primary-500 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+                : 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700'
             }`}
           >
             7D
@@ -233,7 +233,7 @@ const CryptoDetail: React.FC = () => {
             className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
               timeframe === '30d'
                 ? 'bg-primary-500 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+                : 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700'
             }`}
           >
             30D
@@ -243,7 +243,7 @@ const CryptoDetail: React.FC = () => {
             className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
               timeframe === '1y'
                 ? 'bg-primary-500 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+                : 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700'
             }`}
           >
             1Y
@@ -259,9 +259,9 @@ const CryptoDetail: React.FC = () => {
         <Card>
           <div className="flex items-center mb-2">
             <DollarSign className="h-5 w-5 text-primary-500 mr-2" />
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Market Cap</h3>
+            <h3 className="text-lg font-semibold text-neutral-100">Market Cap</h3>
           </div>
-          <p className="text-xl font-bold text-gray-900 dark:text-white">
+          <p className="text-xl font-bold text-neutral-100">
             {formatCurrency(selectedCrypto.marketCap)}
           </p>
         </Card>
@@ -269,9 +269,9 @@ const CryptoDetail: React.FC = () => {
         <Card>
           <div className="flex items-center mb-2">
             <BarChart2 className="h-5 w-5 text-primary-500 mr-2" />
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">24h Volume</h3>
+            <h3 className="text-lg font-semibold text-neutral-100">24h Volume</h3>
           </div>
-          <p className="text-xl font-bold text-gray-900 dark:text-white">
+          <p className="text-xl font-bold text-neutral-100">
             {formatCurrency(selectedCrypto.volume24h)}
           </p>
         </Card>
@@ -279,9 +279,9 @@ const CryptoDetail: React.FC = () => {
         <Card>
           <div className="flex items-center mb-2">
             <Hash className="h-5 w-5 text-primary-500 mr-2" />
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Circulating Supply</h3>
+            <h3 className="text-lg font-semibold text-neutral-100">Circulating Supply</h3>
           </div>
-          <p className="text-xl font-bold text-gray-900 dark:text-white">
+          <p className="text-xl font-bold text-neutral-100">
             {formatNumber(selectedCrypto.circulatingSupply)}
           </p>
         </Card>
@@ -290,10 +290,10 @@ const CryptoDetail: React.FC = () => {
       <Card>
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+            <h3 className="text-xl font-semibold text-neutral-100 mb-2">
               Invest in {selectedCrypto.name}
             </h3>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-neutral-400">
               Start investing with as little as $10. Monitor your investment in real-time.
             </p>
           </div>
@@ -307,7 +307,7 @@ const CryptoDetail: React.FC = () => {
             </Button>
           ) : (
             <Button
-              variant="primary"
+              variant="default"
               onClick={() => setShowInvestForm(true)}
             >
               Invest Now
@@ -316,7 +316,7 @@ const CryptoDetail: React.FC = () => {
         </div>
         
         {showInvestForm && (
-          <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <div className="mt-6 pt-6 border-t border-neutral-800">
             <InvestmentForm
               crypto={selectedCrypto}
               onSuccess={() => setShowInvestForm(false)}

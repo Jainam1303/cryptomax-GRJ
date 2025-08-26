@@ -107,6 +107,15 @@ const InvestmentSchema = new mongoose.Schema({
       default: false
     }
   },
+  // Maturity payout tracking
+  maturityProcessed: {
+    type: Boolean,
+    default: false
+  },
+  maturedAt: {
+    type: Date,
+    default: null
+  },
   createdAt: {
     type: Date,
     default: Date.now

@@ -23,12 +23,15 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   });
   
   useEffect(() => {
-    // Update localStorage when theme changes
+    // Persist theme
     localStorage.setItem('theme', theme);
-    
-    // Update document body class
-    document.body.classList.remove('light-theme', 'dark-theme');
-    document.body.classList.add(`${theme}-theme`);
+    // Toggle Tailwind dark mode class on the root html element
+    const root = document.documentElement;
+    if (theme === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
   }, [theme]);
   
   const toggleTheme = () => {

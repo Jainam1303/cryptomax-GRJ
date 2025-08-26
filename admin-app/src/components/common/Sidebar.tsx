@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, Users, DollarSign, ArrowDownCircle, Settings, X, TrendingUp } from 'lucide-react';
+import { Home, Users, DollarSign, ArrowDownCircle, Settings, X, TrendingUp, Percent, IdCard } from 'lucide-react';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -34,6 +34,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
             <SidebarLink to="/admin" icon={<Home className="sidebar-icon" />}>Dashboard</SidebarLink>
             <SidebarLink to="/admin/users" icon={<Users className="sidebar-icon" />}>Users</SidebarLink>
             <SidebarLink to="/admin/subscription-investments" icon={<TrendingUp className="sidebar-icon" />}>Subscription Investments</SidebarLink>
+            <SidebarLink to="/admin/kyc" icon={<IdCard className="sidebar-icon" />}>KYC Reviews</SidebarLink>
+            <SidebarLink to="/admin/commissions" icon={<Percent className="sidebar-icon" />}>Commissions</SidebarLink>
             <SidebarLink to="/admin/deposits" icon={<DollarSign className="sidebar-icon" />}>Deposits</SidebarLink>
             <SidebarLink to="/admin/withdrawals" icon={<ArrowDownCircle className="sidebar-icon" />}>Withdrawals</SidebarLink>
             <SidebarLink to="/admin/crypto-settings" icon={<DollarSign className="sidebar-icon" />}>Crypto Settings</SidebarLink>

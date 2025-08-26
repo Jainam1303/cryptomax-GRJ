@@ -63,20 +63,39 @@ const UserSchema = new mongoose.Schema({
   lastLogin: {
     type: Date,
     default: null
+  },
+  referralCode: {
+    type: String,
+    unique: true,
+    sparse: true,
+    trim: true,
+    default: ''
   }
 }, {
   timestamps: true
 });
 
-// Hash password before saving
+// Hash password before saving and ensure a referral code exists
 UserSchema.pre('save', async function(next) {
   if (!this.isModified('password')) {
+    // Still ensure referral code exists for existing users
+    if (!this.referralCode || this.referralCode.trim() === '') {
+      const base = (this._id?.toString?.() || Math.random().toString(36).slice(2)).slice(-6).toUpperCase();
+      const rand = Math.random().toString(36).slice(2, 5).toUpperCase();
+      this.referralCode = `CM-${base}${rand}`;
+    }
     return next();
   }
   
   try {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
+    // Generate referral code if missing
+    if (!this.referralCode || this.referralCode.trim() === '') {
+      const base = (this._id?.toString?.() || Math.random().toString(36).slice(2)).slice(-6).toUpperCase();
+      const rand = Math.random().toString(36).slice(2, 5).toUpperCase();
+      this.referralCode = `CM-${base}${rand}`;
+    }
     next();
   } catch (error) {
     next(error);

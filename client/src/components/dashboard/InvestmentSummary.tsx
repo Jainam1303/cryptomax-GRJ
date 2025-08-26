@@ -2,8 +2,8 @@ import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import { formatCurrency, formatPercentage } from '../../utils/formatters';
-import Card from '../ui/card';
-import Button from '../ui/button';
+import { Card } from '../ui/card';
+import { Button } from '../ui/button';
 import { Portfolio } from '../../types';
 import { useDispatch } from 'react-redux';
 import { getCryptos } from '../../redux/thunks/cryptoThunks';
@@ -85,18 +85,12 @@ const InvestmentSummary: React.FC<InvestmentSummaryProps> = ({ portfolio }) => {
       
       <div className="grid grid-cols-2 gap-4">
         <Link to="/invest">
-          <Button
-            variant="primary"
-            fullWidth
-          >
+          <Button variant="default" className="w-full">
             Invest More
           </Button>
         </Link>
                     <Link to="/portfolio">
-          <Button
-            variant="outline"
-            fullWidth
-          >
+          <Button variant="outline" className="w-full">
             View Portfolio
           </Button>
         </Link>

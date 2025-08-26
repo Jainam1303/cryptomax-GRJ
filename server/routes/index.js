@@ -55,5 +55,6 @@ router.use('/api/investment-plans', require('./api/investmentPlans'));
 router.use('/api/crypto', require('./api/crypto'));
 router.use('/api/admin', require('./api/admin'));
 router.use('/api/cryptos', require('./api/cryptos'));
+router.use('/api/referrals', require('./api/referrals'));
 
 module.exports = router;

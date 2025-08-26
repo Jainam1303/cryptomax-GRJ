@@ -10,8 +10,8 @@ import BalanceCard from './BalanceCard';
 import InvestmentSummary from './InvestmentSummary';
 import RecentTransactions from './RecentTransactions';
 import PriceChart from './PriceChart';
-import Button from '../ui/Button';
-import Card from '../ui/Card';
+import { Button } from '../ui/button';
+import { Card } from '../ui/card';
 import Spinner from '../ui/Spinner';
 import { Input } from '../ui/Input';
 
@@ -62,12 +62,9 @@ const Dashboard: React.FC = () => {
             <PriceChart cryptos={cryptos?.slice(0, 5)} />
             <div className="mt-4 text-right">
               <Link to="/invest">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  rightIcon={<ArrowRight className="h-4 w-4" />}
-                >
+                <Button variant="outline" size="sm" className="inline-flex items-center gap-2">
                   View all cryptocurrencies
+                  <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
             </div>
@@ -79,12 +76,9 @@ const Dashboard: React.FC = () => {
             <RecentTransactions transactions={transactions?.slice(0, 5)} />
             <div className="mt-4 text-right">
               <Link to="/wallet">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  rightIcon={<ArrowRight className="h-4 w-4" />}
-                >
+                <Button variant="outline" size="sm" className="inline-flex items-center gap-2">
                   View all transactions
+                  <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
             </div>
@@ -102,7 +96,7 @@ const Dashboard: React.FC = () => {
               You don't have any active investments yet. Explore cryptocurrencies and start investing.
             </p>
             <Link to="/invest">
-              <Button variant="primary">
+              <Button variant="default">
                 Explore cryptocurrencies
               </Button>
             </Link>

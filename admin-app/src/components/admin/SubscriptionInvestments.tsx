@@ -290,50 +290,12 @@ const SubscriptionInvestments: React.FC = () => {
         break;
     }
     
-    return sortOrder === 'asc' ? aValue - bValue : bValue - aValue;
+    	return sortOrder === 'asc' ? aValue - bValue : bValue - aValue;
   });
-
-  if (loading) {
-    return <LoadingSpinner />;
-  }
-
   return (
-    <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Subscription Investments</h1>
-            <p className="text-gray-600">Manage subscription-based investments and daily returns</p>
-          </div>
-          <div className="flex gap-2">
-            <Button 
-              onClick={() => {
-                console.log('Test button clicked');
-                setIsEditModalOpen(true);
-                setSelectedInvestment(investments[0] || null);
-                setDailyReturnPercentage('1.0');
-              }} 
-              className="bg-red-500 hover:bg-red-600 text-white"
-            >
-              Test Modal
-            </Button>
-            <Button 
-              onClick={() => {
-                console.log('Simple test modal clicked');
-                alert('Simple test modal works!');
-              }} 
-              className="bg-green-500 hover:bg-green-600 text-white"
-            >
-              Test Alert
-            </Button>
-            <Button onClick={fetchInvestments} className="flex items-center gap-2">
-              <RefreshCw className="w-4 h-4" />
-              Refresh
-            </Button>
-          </div>
-        </div>
-
-      {/* Filters */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <div className="p-6 space-y-6">
+      <Card className="p-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Search</label>
           <Input
@@ -382,205 +344,169 @@ const SubscriptionInvestments: React.FC = () => {
           </select>
         </div>
       </div>
+    </Card>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <Card className="p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Total Investments</p>
-              <p className="text-2xl font-bold">{investments.length}</p>
-            </div>
-            <DollarSign className="w-8 h-8 text-blue-600" />
+    {/* Stats */}
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <Card className="p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm text-gray-600">Total Investments</p>
+            <p className="text-2xl font-bold">{investments.length}</p>
           </div>
-        </Card>
-        <Card className="p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Active Investments</p>
-              <p className="text-2xl font-bold">{investments.filter(i => i.status === 'active').length}</p>
-            </div>
-            <TrendingUp className="w-8 h-8 text-green-600" />
-          </div>
-        </Card>
-        <Card className="p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Total Invested</p>
-              <p className="text-2xl font-bold">${investments.reduce((sum, i) => sum + i.amount, 0).toLocaleString()}</p>
-            </div>
-            <DollarSign className="w-8 h-8 text-purple-600" />
-          </div>
-        </Card>
-        <Card className="p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Total Profit</p>
-              <p className="text-2xl font-bold text-green-600">${investments.reduce((sum, i) => sum + i.profitLoss, 0).toLocaleString()}</p>
-            </div>
-            <TrendingUp className="w-8 h-8 text-green-600" />
-          </div>
-        </Card>
-      </div>
-
-      {/* Investments Table */}
-      <Card className="overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Investment</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Daily Return</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current Value</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">P&L</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {sortedInvestments.map((investment) => (
-                <tr key={investment._id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">{investment.user.name}</div>
-                      <div className="text-sm text-gray-500">{investment.user.email}</div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">{investment.crypto.name}</div>
-                      <div className="text-sm text-gray-500">{investment.investmentPlan?.name}</div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">${investment.amount.toLocaleString()}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{investment.dailyReturnPercentage}%</div>
-                    <div className="text-sm text-gray-500">{investment.daysElapsed} days elapsed</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">${investment.currentValue.toLocaleString()}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-green-600">+${investment.profitLoss.toLocaleString()}</div>
-                    <div className="text-sm text-green-600">+{investment.profitLossPercentage.toFixed(2)}%</div>
-                    {investment.manualAdjustment?.isActive && (
-                      <div className="text-xs text-orange-600 font-medium mt-1">
-                        🔧 Manual Adjustment Active
-                      </div>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {getStatusBadge(investment.status)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex space-x-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          console.log('Edit button clicked for investment:', investment._id);
-                          openEditModal(investment);
-                        }}
-                        className="flex items-center gap-1 hover:bg-blue-50"
-                      >
-                        <Edit className="w-3 h-3" />
-                        Edit
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          console.log('Adjust button clicked for investment:', investment._id);
-                          openAdjustmentModal(investment);
-                        }}
-                        className="flex items-center gap-1 hover:bg-green-50"
-                      >
-                        <DollarSign className="w-3 h-3" />
-                        Adjust
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          console.log('Status button clicked for investment:', investment._id);
-                          openStatusModal(investment);
-                        }}
-                        className="flex items-center gap-1 hover:bg-purple-50"
-                      >
-                        <CheckCircle className="w-3 h-3" />
-                        Status
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          console.log('Reset button clicked for investment:', investment._id);
-                          handleResetAdjustment(investment._id);
-                        }}
-                        className="flex items-center gap-1 hover:bg-orange-50"
-                      >
-                        <RefreshCw className="w-3 h-3" />
-                        Reset
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <DollarSign className="w-8 h-8 text-blue-600" />
         </div>
       </Card>
-
-      {/* Simple Test Modal */}
-      {isEditModalOpen && (
-        <div 
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0,0,0,0.5)',
-            zIndex: 9999,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
-          onClick={() => setIsEditModalOpen(false)}
-        >
-          <div 
-            style={{
-              backgroundColor: 'white',
-              padding: '20px',
-              borderRadius: '8px',
-              maxWidth: '500px',
-              width: '90%'
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 style={{ marginBottom: '10px', fontWeight: 'bold' }}>SIMPLE TEST MODAL</h3>
-            <p>This is a simple test modal to check if modals work at all.</p>
-            <p>isEditModalOpen: {isEditModalOpen.toString()}</p>
-            <button 
-              onClick={() => setIsEditModalOpen(false)}
-              style={{
-                backgroundColor: '#ef4444',
-                color: 'white',
-                padding: '8px 16px',
-                borderRadius: '4px',
-                border: 'none',
-                marginTop: '10px'
-              }}
-            >
-              Close
-            </button>
+      <Card className="p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm text-gray-600">Active Investments</p>
+            <p className="text-2xl font-bold">{investments.filter(i => i.status === 'active').length}</p>
           </div>
+          <TrendingUp className="w-8 h-8 text-green-600" />
         </div>
-      )}
+      </Card>
+      <Card className="p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm text-gray-600">Total Invested</p>
+            <p className="text-2xl font-bold">${investments.reduce((sum, i) => sum + i.amount, 0).toLocaleString()}</p>
+          </div>
+          <DollarSign className="w-8 h-8 text-purple-600" />
+        </div>
+      </Card>
+      <Card className="p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm text-gray-600">Total Profit</p>
+            <p className="text-2xl font-bold text-green-600">${investments.reduce((sum, i) => sum + i.profitLoss, 0).toLocaleString()}</p>
+          </div>
+          <TrendingUp className="w-8 h-8 text-green-600" />
+        </div>
+      </Card>
+    </div>
+
+    {/* Investments Table */}
+    <Card className="overflow-hidden shadow-sm">
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead className="bg-gray-50 sticky top-0 z-10">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Investment</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Daily Return</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current Value</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">P&L</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {sortedInvestments.map((investment) => (
+              <tr key={investment._id} className="hover:bg-gray-50">
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div>
+                    <div className="text-sm font-medium text-gray-900">{investment.user.name}</div>
+                    <div className="text-sm text-gray-500">{investment.user.email}</div>
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div>
+                    <div className="text-sm font-medium text-gray-900">{investment.crypto.name}</div>
+                    <div className="text-sm text-gray-500">{investment.investmentPlan?.name}</div>
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm font-medium text-gray-900">${investment.amount.toLocaleString()}</div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm font-medium text-gray-900">{investment.dailyReturnPercentage}%</div>
+                  <div className="text-sm text-gray-500">{investment.daysElapsed} days elapsed</div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm font-medium text-gray-900">${investment.currentValue.toLocaleString()}</div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {(() => {
+                    const isProfit = investment.profitLoss >= 0;
+                    const amount = Math.abs(investment.profitLoss).toLocaleString();
+                    const pct = Math.abs(investment.profitLossPercentage).toFixed(2);
+                    const color = isProfit ? 'text-green-600' : 'text-red-600';
+                    return (
+                      <>
+                        <div className={`text-sm font-medium ${color}`}>{isProfit ? '+' : '-'}${amount}</div>
+                        <div className={`text-sm ${color}`}>{isProfit ? '+' : '-'}{pct}%</div>
+                        {investment.manualAdjustment?.isActive && (
+                          <div className="text-xs text-orange-600 font-medium mt-1">
+                            🔧 Manual Adjustment Active
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {getStatusBadge(investment.status)}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <div className="flex space-x-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        console.log('Edit button clicked for investment:', investment._id);
+                        openEditModal(investment);
+                      }}
+                      className="flex items-center gap-1 hover:bg-blue-50"
+                    >
+                      <Edit className="w-3 h-3" />
+                      Edit
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        console.log('Adjust button clicked for investment:', investment._id);
+                        openAdjustmentModal(investment);
+                      }}
+                      className="flex items-center gap-1 hover:bg-green-50"
+                    >
+                      <DollarSign className="w-3 h-3" />
+                      Adjust
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        console.log('Status button clicked for investment:', investment._id);
+                        openStatusModal(investment);
+                      }}
+                      className="flex items-center gap-1 hover:bg-purple-50"
+                    >
+                      <CheckCircle className="w-3 h-3" />
+                      Status
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        console.log('Reset button clicked for investment:', investment._id);
+                        handleResetAdjustment(investment._id);
+                      }}
+                      className="flex items-center gap-1 hover:bg-orange-50"
+                    >
+                      <RefreshCw className="w-3 h-3" />
+                      Reset
+                    </Button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </Card>
 
       {/* Edit Daily Return Modal */}
       {isEditModalOpen && (
@@ -627,11 +553,7 @@ const SubscriptionInvestments: React.FC = () => {
               </button>
             </div>
             
-            <div style={{ marginBottom: '20px', padding: '10px', backgroundColor: '#eff6ff', borderRadius: '4px', border: '1px solid #dbeafe' }}>
-              <p style={{ margin: '0 0 5px 0', color: '#1e40af', fontWeight: 'bold' }}>DEBUG: Modal is open!</p>
-              <p style={{ margin: '0 0 5px 0', color: '#2563eb' }}>isEditModalOpen: {isEditModalOpen.toString()}</p>
-              <p style={{ margin: 0, color: '#2563eb' }}>selectedInvestment: {selectedInvestment ? 'Yes' : 'No'}</p>
-            </div>
+            {/* debug panel removed */}
             
             {selectedInvestment && (
               <div style={{ marginBottom: '20px', padding: '10px', backgroundColor: '#f9fafb', borderRadius: '4px' }}>
