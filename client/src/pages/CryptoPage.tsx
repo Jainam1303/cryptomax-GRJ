@@ -89,18 +89,21 @@ const CryptoPage = () => {
     signalTimeouts.current = {};
     const newSignals: { [id: string]: boolean } = {};
     tickerCryptos.forEach(crypto => {
-      if (crypto.direction === 'up' || crypto.direction === 'down') {
-        signalTimeouts.current[crypto._id] = setTimeout(() => {
-          setSignalVisible(prev => ({ ...prev, [crypto._id]: true }));
+      if (!crypto) return;
+      const id = crypto._id;
+      const dir = crypto.direction;
+      if (dir === 'up' || dir === 'down') {
+        signalTimeouts.current[id] = setTimeout(() => {
+          setSignalVisible(prev => ({ ...prev, [id]: true }));
         }, 5000);
-        newSignals[crypto._id] = false;
+        newSignals[id] = false;
       }
     });
     setSignalVisible(newSignals);
     return () => {
       Object.values(signalTimeouts.current).forEach(clearTimeout);
     };
-  }, [tickerCryptos.map(c => c._id + c.direction).join(',')]);
+  }, [tickerCryptos.map(c => (c ? (c._id + (c.direction || '')) : '')).join(',')]);
 
 
 

@@ -53,12 +53,14 @@ const DashboardPage = () => {
 
   // Helper to get live price for a crypto
   const getLivePrice = (cryptoId: string, fallback: number) => {
-    const ticker = tickerCryptos.find(c => c._id === cryptoId);
-    return ticker ? ticker.currentPrice : fallback;
+    const list = Array.isArray(tickerCryptos) ? tickerCryptos : [];
+    const ticker = list.find((c: any) => c && c._id === cryptoId);
+    return ticker && typeof ticker.currentPrice === 'number' ? ticker.currentPrice : fallback;
   };
   // Helper to get admin-set price for a crypto
   const getAdminPrice = (cryptoId: string, fallback: number) => {
-    const ticker = tickerCryptos.find(c => c._id === cryptoId);
+    const list = Array.isArray(tickerCryptos) ? tickerCryptos : [];
+    const ticker = list.find((c: any) => c && c._id === cryptoId);
     return ticker && (ticker as any).minPrice ? (ticker as any).minPrice : fallback;
   };
   // Portfolio summary using backend data (subscription-based)
