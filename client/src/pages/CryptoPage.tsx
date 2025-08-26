@@ -198,56 +198,59 @@ const CryptoPage = () => {
                     </TableHeader>
                     <TableBody>
                       {tickerCryptos
-                        .filter(crypto =>
-                          crypto.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          crypto.symbol.toLowerCase().includes(searchQuery.toLowerCase())
-                        )
+                        .filter((crypto) => {
+                          if (!crypto) return false;
+                          const name = crypto.name?.toLowerCase?.() || '';
+                          const symbol = crypto.symbol?.toLowerCase?.() || '';
+                          const term = (searchQuery || '').toLowerCase();
+                          return name.includes(term) || symbol.includes(term);
+                        })
                         .map((crypto) => (
                           <TableRow
-                            key={crypto._id}
-                            onClick={() => openInvestmentPlans(crypto)}
+                            key={crypto._id || Math.random().toString(36)}
+                            onClick={() => crypto && openInvestmentPlans(crypto)}
                             className="cursor-pointer hover:bg-neutral-800/60"
                           >
                             <TableCell className="py-3 pl-2 pr-2">
                               <div className="flex items-center gap-3">
-                                {crypto.image ? (
-                                  <img src={crypto.image} alt={crypto.symbol} className="w-8 h-8 rounded-full object-cover" />
+                                {crypto?.image ? (
+                                  <img src={crypto.image} alt={crypto?.symbol || 'Crypto'} className="w-8 h-8 rounded-full object-cover" />
                                 ) : (
                                   <div className="w-8 h-8 bg-gradient-to-r from-orange-400 to-yellow-400 rounded-full flex items-center justify-center">
-                                    <span className="text-white font-bold">{crypto.symbol[0]}</span>
+                                    <span className="text-white font-bold">{crypto?.symbol?.[0] || '?'}</span>
                                   </div>
                                 )}
                                 <div>
-                                  <div className="font-semibold text-foreground">{crypto.name}</div>
-                                  <div className="text-[11px] text-muted-foreground">{crypto.symbol}</div>
+                                  <div className="font-semibold text-foreground">{crypto?.name || 'Unknown Asset'}</div>
+                                  <div className="text-[11px] text-muted-foreground">{crypto?.symbol || ''}</div>
                                 </div>
                               </div>
                             </TableCell>
                             <TableCell className="text-right font-semibold text-foreground px-2 tabular-nums whitespace-nowrap">
-                              ${crypto.currentPrice.toLocaleString()}
+                              ${(crypto?.currentPrice ?? 0).toLocaleString()}
                             </TableCell>
                             <TableCell className="text-center px-2 whitespace-nowrap">
                               <Badge
                                 className={
-                                  (crypto.priceChangePercentage24h ?? 0) >= 0
+                                  (crypto?.priceChangePercentage24h ?? 0) >= 0
                                     ? "bg-green-100 text-green-700"
                                     : "bg-red-100 text-red-700"
                                 }
                               >
-                                {(crypto.priceChangePercentage24h ?? 0) >= 0 ? (
+                                {(crypto?.priceChangePercentage24h ?? 0) >= 0 ? (
                                   <TrendingUp className="w-3 h-3 mr-1" />
                                 ) : (
                                   <TrendingDown className="w-3 h-3 mr-1" />
                                 )}
-                                {(crypto.priceChangePercentage24h ?? 0) >= 0 ? '+' : ''}
-                                {(crypto.priceChangePercentage24h ?? 0).toFixed(2)}%
+                                {(crypto?.priceChangePercentage24h ?? 0) >= 0 ? '+' : ''}
+                                {(crypto?.priceChangePercentage24h ?? 0).toFixed(2)}%
                               </Badge>
                             </TableCell>
                             <TableCell className="text-right px-2 whitespace-nowrap">
                               <Button
                                 size="sm"
                                 className="bg-gradient-to-r from-emerald-500 to-lime-500 hover:from-emerald-400 hover:to-lime-400 text-black font-semibold shadow-[0_0_12px_rgba(34,197,94,0.45)]"
-                                onClick={(e) => { e.stopPropagation(); openInvestmentPlans(crypto); }}
+                                onClick={(e) => { e.stopPropagation(); crypto && openInvestmentPlans(crypto); }}
                               >
                                 <Plus className="w-4 h-4 mr-1" />
                                 Invest

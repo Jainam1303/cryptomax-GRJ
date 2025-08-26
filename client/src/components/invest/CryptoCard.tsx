@@ -27,12 +27,12 @@ const CryptoCard: React.FC<CryptoCardProps> = ({ crypto, onClick }) => {
             />
           ) : (
             <div className="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center mr-3">
-              <span className="text-white font-bold">{crypto.symbol.charAt(0)}</span>
+              <span className="text-white font-bold">{crypto?.symbol?.charAt(0) || '?'}</span>
             </div>
           )}
           <div>
-            <h3 className="text-lg font-semibold text-white">{crypto.name}</h3>
-            <p className="text-sm text-gray-400">{crypto.symbol}</p>
+            <h3 className="text-lg font-semibold text-white">{crypto?.name || 'Unknown Asset'}</h3>
+            <p className="text-sm text-gray-400">{crypto?.symbol || ''}</p>
           </div>
         </div>
         

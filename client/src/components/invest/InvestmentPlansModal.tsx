@@ -151,15 +151,15 @@ const InvestmentPlansModal: React.FC<InvestmentPlansModalProps> = ({
         <DialogHeader className="text-center pb-6">
           <div className="flex items-center justify-center mb-4">
             {crypto.image ? (
-              <img src={crypto.image} alt={crypto.symbol} className="w-16 h-16 rounded-full mr-4" />
+              <img src={crypto.image} alt={crypto?.symbol || 'Crypto'} className="w-16 h-16 rounded-full mr-4" />
             ) : (
               <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-full flex items-center justify-center mr-4">
-                <span className="text-white font-bold text-xl">{crypto.symbol[0]}</span>
+                <span className="text-white font-bold text-xl">{crypto?.symbol?.[0] || '?'}</span>
               </div>
             )}
             <div>
               <DialogTitle className="text-3xl font-bold text-neutral-100">
-                Investment Plans - {crypto.name} ({crypto.symbol})
+                Investment Plans - {crypto?.name || 'Unknown Asset'} ({crypto?.symbol || ''})
               </DialogTitle>
               <DialogDescription className="text-lg text-neutral-400 mt-2">
                 Choose a subscription-based investment plan with guaranteed daily returns
