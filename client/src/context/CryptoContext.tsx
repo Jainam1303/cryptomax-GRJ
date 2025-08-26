@@ -78,18 +78,23 @@ export const CryptoProvider = ({ children }: CryptoProviderProps) => {
   const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
 
-  // Filter cryptos based on search query
-  const filteredCryptos = cryptos.filter(crypto =>
-    crypto.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    crypto.symbol.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Filter cryptos based on search query (guard against null entries)
+  const filteredCryptos = (cryptos || [])
+    .filter(Boolean)
+    .filter((crypto) =>
+      (crypto?.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (crypto?.symbol || '').toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
   const getCryptos = async () => {
     try {
       setLoading(true);
       const response = await api.get('/api/crypto');
-      setCryptos(response.data);
-      setTickerCryptos(response.data);
+      const incoming: Crypto[] = Array.isArray(response.data) ? response.data : [];
+      // Sanitize: remove null/undefined entries
+      const clean = incoming.filter(Boolean);
+      setCryptos(clean);
+      setTickerCryptos(clean);
       setLastUpdated(new Date());
     } catch (error: any) {
       console.error('Error fetching cryptos:', error);

@@ -57,7 +57,8 @@ const CryptoPage = () => {
     async function fetchInitialCryptos() {
       try {
         const res = await api.get('/api/crypto');
-        setTickerCryptos(res.data);
+        const clean = (Array.isArray(res.data) ? res.data : []).filter(Boolean);
+        setTickerCryptos(clean);
       } catch (err) {
         // Optionally handle error
       }
