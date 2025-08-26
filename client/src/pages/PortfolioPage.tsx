@@ -156,17 +156,20 @@ const PortfolioPage: React.FC = () => {
                     const currentValue = investment.currentValue || investment.amount;
                     const profitLoss = investment.profitLoss || 0;
                     const profitLossPercentage = investment.profitLossPercentage || 0;
+                    const cryptoImage = investment.crypto?.image;
+                    const cryptoSymbol = investment.crypto?.symbol || 'N/A';
+                    const cryptoName = investment.crypto?.name || 'Unknown Asset';
                     
                     return (
                       <div key={investment._id} className="flex items-center justify-between p-4 rounded-lg bg-neutral-900/60 border border-neutral-800 hover:bg-neutral-800/60 transition-colors">
                         <div className="flex items-center space-x-4">
-                          {investment.crypto.image ? (
+                          {cryptoImage ? (
                             <img
-                              src={investment.crypto.image}
-                              alt={investment.crypto.symbol}
+                              src={cryptoImage}
+                              alt={cryptoSymbol}
                               className="w-12 h-12 rounded-full object-cover"
                             />
-                          ) : investment.crypto.symbol === 'BTC' ? (
+                          ) : (investment.crypto && cryptoSymbol === 'BTC') ? (
                             <img
                               src="https://assets.coingecko.com/coins/images/1/large/bitcoin.png"
                               alt="Bitcoin"
@@ -174,11 +177,11 @@ const PortfolioPage: React.FC = () => {
                             />
                           ) : (
                             <div className="w-12 h-12 bg-gradient-to-r from-orange-400 to-yellow-400 rounded-full flex items-center justify-center">
-                              <span className="text-white font-bold">{investment.crypto.symbol[0]}</span>
+                              <span className="text-white font-bold">{cryptoSymbol?.[0] || '?'}</span>
                             </div>
                           )}
                           <div>
-                            <div className="font-semibold text-foreground">{investment.crypto.name}</div>
+                            <div className="font-semibold text-foreground">{cryptoName}</div>
                             <div className="text-sm text-muted-foreground">
                               {investment.investmentPlan?.name || 'Subscription Plan'}
                             </div>
