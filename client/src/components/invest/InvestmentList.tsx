@@ -55,38 +55,35 @@ const InvestmentList: React.FC = () => {
     );
   }
   
-  // Filter out any investments missing crypto to avoid null access
-  const safeInvestments = investments.filter((inv: any) => inv && inv.crypto);
-
   return (
     <div className="space-y-6">
-      {safeInvestments.map((investment: any) => {
-        const isProfitable = (investment.profitLoss ?? 0) >= 0;
+      {investments.map(investment => {
+        const isProfitable = investment.profitLoss >= 0;
         
         return (
           <Card key={investment._id}>
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div className="flex items-center">
-                {investment.crypto?.image ? (
+                {investment.crypto.image ? (
                   <img
                     src={investment.crypto.image}
-                    alt={investment.crypto?.symbol || 'Crypto'}
+                    alt={investment.crypto.symbol}
                     className="w-12 h-12 rounded-full object-cover mr-3"
                   />
                 ) : (
                   <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-full flex items-center justify-center mr-3">
-                    <span className="text-white font-bold">{investment.crypto?.symbol?.[0] || '?'}</span>
+                    <span className="text-white font-bold">{investment.crypto.symbol[0]}</span>
                   </div>
                 )}
                 <div>
-                  <h3 className="text-lg font-semibold text-neutral-100">{investment.crypto?.name || 'Unknown Crypto'}</h3>
-                  <p className="text-sm text-neutral-400">{investment.crypto?.symbol || ''}</p>
+                  <h3 className="text-lg font-semibold text-neutral-100">{investment.crypto.name}</h3>
+                  <p className="text-sm text-neutral-400">{investment.crypto.symbol}</p>
                 </div>
               </div>
               
               <div className="flex flex-col items-end">
                 <div className="text-xl font-bold text-neutral-100">
-                  {formatCurrency(investment.currentValue ?? 0)}
+                  {formatCurrency(investment.currentValue)}
                 </div>
                 <div className="flex items-center">
                   {isProfitable ? (
@@ -97,7 +94,7 @@ const InvestmentList: React.FC = () => {
                   <span className={`text-sm font-medium ${
                     isProfitable ? 'text-success-500' : 'text-danger-500'
                   }`}>
-                    {formatCurrency(investment.profitLoss ?? 0)} ({formatPercentage(investment.profitLossPercentage ?? 0)})
+                    {formatCurrency(investment.profitLoss)} ({formatPercentage(investment.profitLossPercentage)})
                   </span>
                 </div>
               </div>
@@ -108,19 +105,19 @@ const InvestmentList: React.FC = () => {
                 <div>
                   <p className="text-sm text-neutral-400">Quantity</p>
                   <p className="text-base font-medium text-neutral-100">
-                    {(investment.quantity ?? 0).toFixed(8)} {investment.crypto?.symbol || ''}
+                    {investment.quantity.toFixed(8)} {investment.crypto.symbol}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm text-neutral-400">Buy Price</p>
                   <p className="text-base font-medium text-neutral-100">
-                    {formatCurrency(investment.buyPrice ?? 0)}
+                    {formatCurrency(investment.buyPrice)}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm text-neutral-400">Current Price</p>
                   <p className="text-base font-medium text-neutral-100">
-                    {formatCurrency(investment.crypto?.currentPrice ?? 0)}
+                    {formatCurrency(investment.crypto.currentPrice)}
                   </p>
                 </div>
                 <div>
@@ -136,7 +133,7 @@ const InvestmentList: React.FC = () => {
                   variant={isProfitable ? 'default' : 'destructive'}
                   onClick={() => handleSell(investment._id)}
                 >
-                  Sell {investment.crypto?.symbol || 'Asset'}
+                  Sell {investment.crypto.symbol}
                 </Button>
               </div>
             </div>
