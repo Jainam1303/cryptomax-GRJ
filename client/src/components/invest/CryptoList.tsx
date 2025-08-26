@@ -31,7 +31,8 @@ const CryptoList: React.FC = () => {
     if (
       tickerCryptos.length === 0 ||
       tickerCryptos.length !== cryptos.length ||
-      tickerCryptos.some((c, i) => c._id !== cryptos[i]._id)
+      tickerCryptos.some((c, i) => (c?.
+        _id) !== (cryptos?.[i]?._id))
     ) {
       setTickerCryptos(cryptos);
       setLastUpdated(new Date());
@@ -44,7 +45,8 @@ const CryptoList: React.FC = () => {
     if (!tickerCryptos || tickerCryptos.length === 0) return;
     const interval = setInterval(() => {
       setTickerCryptos(prevCryptos => {
-        const updated = prevCryptos.map(crypto => {
+        const updated = (prevCryptos || []).map(crypto => {
+          if (!crypto) return crypto;
           if (!crypto.adminFluctuationEnabled) return crypto;
           const min = crypto.minPrice ?? crypto.currentPrice;
           const max = crypto.maxPrice ?? crypto.currentPrice;
@@ -56,7 +58,7 @@ const CryptoList: React.FC = () => {
           return { ...crypto, currentPrice: parseFloat(newPrice.toFixed(6)) };
         });
         setLastUpdated(new Date());
-        console.log('Ticker ran at', new Date().toLocaleTimeString(), updated.map(c => ({ symbol: c.symbol, price: c.currentPrice })));
+        console.log('Ticker ran at', new Date().toLocaleTimeString(), updated.filter(Boolean).map(c => ({ symbol: c!.symbol, price: c!.currentPrice })));
         return updated;
       });
     }, 2000 + Math.random() * 1000); // 2-3 seconds
