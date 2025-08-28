@@ -257,10 +257,14 @@ const SubscriptionInvestments: React.FC = () => {
   };
 
   const filteredInvestments = investments.filter(investment => {
+    const userName = (investment.user?.name || '').toLowerCase();
+    const userEmail = (investment.user?.email || '').toLowerCase();
+    const cryptoName = (investment.crypto?.name || '').toLowerCase();
+    const query = searchTerm.toLowerCase();
     const matchesSearch = 
-      investment.user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      investment.user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      investment.crypto.name.toLowerCase().includes(searchTerm.toLowerCase());
+      userName.includes(query) ||
+      userEmail.includes(query) ||
+      cryptoName.includes(query);
     
     const matchesStatus = statusFilter === 'all' || investment.status === statusFilter;
     
@@ -419,14 +423,14 @@ const SubscriptionInvestments: React.FC = () => {
               <tr key={investment._id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div>
-                    <div className="text-sm font-medium text-gray-900">{investment.user.name}</div>
-                    <div className="text-sm text-gray-500">{investment.user.email}</div>
+                    <div className="text-sm font-medium text-gray-900">{investment.user?.name || 'Unknown User'}</div>
+                    <div className="text-sm text-gray-500">{investment.user?.email || '—'}</div>
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div>
-                    <div className="text-sm font-medium text-gray-900">{investment.crypto.name}</div>
-                    <div className="text-sm text-gray-500">{investment.investmentPlan?.name}</div>
+                    <div className="text-sm font-medium text-gray-900">{investment.crypto?.name || '—'}</div>
+                    <div className="text-sm text-gray-500">{investment.investmentPlan?.name || '—'}</div>
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
