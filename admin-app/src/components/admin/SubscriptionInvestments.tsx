@@ -292,6 +292,18 @@ const SubscriptionInvestments: React.FC = () => {
     
     	return sortOrder === 'asc' ? aValue - bValue : bValue - aValue;
   });
+
+  // Show loader while fetching data
+  if (loading) {
+    return (
+      <div className="p-6">
+        <Card className="p-6 flex items-center justify-center">
+          <LoadingSpinner />
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 space-y-6">
       <Card className="p-4 mb-6">
